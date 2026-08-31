@@ -101,6 +101,7 @@ pre{background:#0f172a;color:#e8edf5;padding:18px;border-radius:12px;overflow:au
   <a href="#language">1. 先學貝氏的語言</a>
   <a href="#glossary">2. 名詞大辭典</a>
   <a href="#compare">3. 傳統統計 vs 貝氏</a>
+  <a href="#p09">3A. 為什麼 p=.09 仍可有 91%？</a>
   <a href="#prior">4. Prior 怎麼想</a>
   <a href="#posterior">5. Posterior 怎麼看</a>
   <a href="#mcmc">6. MCMC 到底在幹嘛</a>
@@ -309,6 +310,212 @@ pre{background:#0f172a;color:#e8edf5;padding:18px;border-radius:12px;overflow:au
   <div class="callout orange">初學者不要陷入「Bayesian 比 p-value 高級」這種二分法。真正重要的是：你的研究問題適合什麼 estimand、資料結構是什麼、結果要怎麼讓臨床人員理解。</div>
 </section>
 
+
+<section id="p09">
+  <h2>3A. 最容易誤會的一題：為什麼 p = .09，Bayesian 卻可能說「有益機率 91%」？</h2>
+
+  <div class="callout red">
+    <strong>先把最重要的錯誤觀念拿掉：</strong><br>
+    <strong>91% 絕對不是用 1 − 0.09 算出來的。</strong><br>
+    p-value 和 Bayesian posterior probability 回答的是兩個不同問題，所以不能互相直接換算。
+  </div>
+
+  <h3>第一步｜先固定「同一批研究資料」</h3>
+  <p>下面用一組<strong>純教學用的虛構安全搬運前後測資料</strong>。假設介入組相較於對照組，安全搬運行為分數的改善差異估計為：</p>
+
+  <div class="grid3">
+    <div class="card">
+      <span class="badge">觀察到的效果</span>
+      <h4>+0.45 分</h4>
+      <p>介入組平均看起來改善比較多。</p>
+    </div>
+    <div class="card">
+      <span class="badge">傳統不確定範圍</span>
+      <h4>約 −0.07 到 +0.97</h4>
+      <p>範圍還跨過 0，因此資料並不算非常確定。</p>
+    </div>
+    <div class="card">
+      <span class="badge">雙尾檢定</span>
+      <h4>p ≈ .09</h4>
+      <p>沒有跨過傳統 .05 的門檻。</p>
+    </div>
+  </div>
+
+  <p>到這裡，Bayesian 和傳統統計看到的<strong>原始資料完全一樣</strong>。差別不是資料，而是「接下來問什麼問題」。</p>
+
+  <h3>第二步｜p = .09 到底在回答什麼？</h3>
+  <div class="card">
+    <div class="label">傳統統計真正問的是</div>
+    <p style="font-size:1.08rem"><strong>「先假設這個介入其實完全沒有效果，如果一直重複做類似研究，看到現在這麼極端或更極端資料的情況，會不會很少見？」</strong></p>
+  </div>
+
+  <p><strong>p = .09</strong> 可以白話理解成：在「真正沒有任何效果」這個假設之下，現在這種程度或更極端的資料並沒有罕見到低於 5%。</p>
+
+  <div class="callout orange">
+    所以 p = .09 <strong>不能</strong>翻譯成：<br>
+    ❌「介入沒有效果的機率是 9%」<br>
+    ❌「介入有效的機率是 91%」<br>
+    ❌「這個研究有 91% 機率是真的」<br><br>
+    p-value 本身沒有直接回答「效果為正的機率是多少」。
+  </div>
+
+  <h3>第三步｜Bayesian 換了一個問題</h3>
+  <div class="card">
+    <div class="label">Bayesian 比較接近在問</div>
+    <p style="font-size:1.08rem"><strong>「把原本合理的效果範圍，加上這次真正看到的資料之後，現在『介入效果大於 0』的可能性有多高？」</strong></p>
+  </div>
+
+  <p>因此 Bayesian 必須多一個傳統分析沒有明確放進模型的東西：<strong>Prior</strong>。</p>
+
+  <div class="flow">
+    <div class="step">Prior<br><small>看資料前：大效果不太容易，小效果較合理</small></div>
+    <div class="arrow">＋</div>
+    <div class="step">這次資料<br><small>觀察效果偏正向，但不確定性還不小</small></div>
+    <div class="arrow">→</div>
+    <div class="step">Posterior<br><small>更新後大部分仍落在正向</small></div>
+  </div>
+
+  <h3>第四步｜那「91%」到底從哪裡來？</h3>
+  <p>在這個教學例子裡，我們先放入一個<strong>溫和、偏保守的 prior</strong>：</p>
+  <ul>
+    <li>介入可能有正效果，也可能有負效果。</li>
+    <li>一開始不偏袒哪個方向。</li>
+    <li>但非常誇張的巨大效果，被認為比較不合理。</li>
+  </ul>
+
+  <p>接著讓這個 prior 和剛才那批資料一起更新。更新後的結果大致呈現：</p>
+
+  <div class="grid3">
+    <div class="card">
+      <span class="badge">Posterior 中心</span>
+      <h4>約 +0.28 分</h4>
+      <p>比原始 +0.45 稍微往 0 拉回，因為 prior 比較保守。</p>
+    </div>
+    <div class="card">
+      <span class="badge">效果 > 0</span>
+      <h4>約 91%</h4>
+      <p>Posterior 裡大約九成以上落在「有正向效果」這一側。</p>
+    </div>
+    <div class="card">
+      <span class="badge">95%可信範圍</span>
+      <h4>約 −0.13 到 +0.69</h4>
+      <p>仍然有一小部分機率落在 0 以下，所以不是「確定有效」。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>這就是最關鍵的地方：</strong><br>
+    「91% 在正向」和「95% credible interval 還跨過 0」可以同時成立。<br>
+    它的意思不是「已經證明有效」，而是<strong>目前證據比較傾向正效果，但仍保留一部分負效果或無效果的不確定性</strong>。
+  </div>
+
+  <h3>第五步｜那「達到臨床／實務重要效果的機率 64%」又是什麼？</h3>
+  <p>光問「有沒有大於 0」其實門檻太低。比如只改善 +0.01 分，數學上也是正效果，但實務上可能毫無意義。</p>
+
+  <p>所以研究者可以在研究開始前先定義：</p>
+
+  <div class="card">
+    <div class="label">假設的實務重要門檻</div>
+    <p><strong>安全搬運行為分數至少比對照組多改善 +0.20 分，才值得我們認為具有實務意義。</strong></p>
+  </div>
+
+  <p>再回到同一個 posterior：</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>效果 > 0</h4>
+      <p style="font-size:1.55rem;font-weight:900;color:var(--teal)">約 91%</p>
+      <p>問的是：「方向是不是正的？」</p>
+    </div>
+    <div class="card">
+      <h4>效果 > +0.20</h4>
+      <p style="font-size:1.55rem;font-weight:900;color:var(--orange)">約 65%</p>
+      <p>問的是：「效果有沒有大到值得在實務上在意？」</p>
+    </div>
+  </div>
+
+  <p>因此原本網站寫的 64% 比較精確的意思應該是：</p>
+
+  <div class="callout">
+    <strong>「在目前模型、Prior 與資料之下，介入效果超過我們事先定義的實務重要門檻之 posterior probability 約為 64–65%。」</strong>
+  </div>
+
+  <h3>第六步｜為什麼不同 Prior，91% 還會變？</h3>
+  <p>這也是為什麼 Bayesian 結果不能只丟一個「91%」就結束。下面仍然使用<strong>完全相同的研究資料</strong>，只改變看資料以前的合理假設：</p>
+
+  <div class="quiz">
+    <label>選擇看資料前的態度：
+      <select id="priorDemo">
+        <option value="weak">很寬鬆：幾乎讓資料自己說話</option>
+        <option value="moderate" selected>溫和保守：大效果比較不容易</option>
+        <option value="skeptical">非常保守：我原本很懷疑會有明顯效果</option>
+      </select>
+    </label>
+    <button onclick="updatePriorDemo()" style="margin-top:12px">看看同一批資料會變成什麼</button>
+    <div id="priorDemoResult" class="result"></div>
+  </div>
+
+  <div class="callout orange">
+    所以一篇好的 Bayesian 論文不能只說：「有效機率 91%。」還必須交代：<br>
+    ① Prior 怎麼設定？<br>
+    ② 為什麼這樣設定？<br>
+    ③ 換合理的 Prior 後結果會不會大幅改變？<br>
+    ④ Posterior predictive check 是否合理？<br>
+    ⑤ 91% 指的是「大於 0」，還是「超過實務門檻」？
+  </div>
+
+  <h3>第七步｜把兩種結果放在一起，臨床上到底怎麼講？</h3>
+  <table>
+    <thead>
+      <tr><th>說法</th><th>是否合理</th><th>原因</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>「p=.09，所以介入沒有效。」</td>
+        <td>❌</td>
+        <td>p>.05 不等於證明沒有效果。</td>
+      </tr>
+      <tr>
+        <td>「p=.09，所以有效機率是91%。」</td>
+        <td>❌</td>
+        <td>91% 不能從 1−p 推出。</td>
+      </tr>
+      <tr>
+        <td>「傳統分析沒有跨過 .05 門檻。」</td>
+        <td>✅</td>
+        <td>這是對 frequentist 結果的正確描述。</td>
+      </tr>
+      <tr>
+        <td>「Bayesian 模型顯示效果為正的 posterior probability 約91%。」</td>
+        <td>✅</td>
+        <td>前提是清楚交代 prior、模型與資料。</td>
+      </tr>
+      <tr>
+        <td>「目前證據偏向正效果，但達到預先定義實務重要程度的把握只有約65%。」</td>
+        <td>✅</td>
+        <td>同時呈現方向與實務意義，也保留不確定性。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>最後，把整件事情濃縮成一句話</h3>
+  <div class="callout">
+    <strong>p = .09</strong> 是在「假設完全沒有效果」的前提下看資料有多異常；<br>
+    <strong>91%</strong> 是在「給定 Prior、模型與目前資料」後，看效果落在正向的 posterior probability。<br><br>
+    <strong>因為兩者問的根本不是同一個問題，所以它們可以同時成立，而且不能互相換算。</strong>
+  </div>
+
+  <details>
+    <summary>進階註記：為什麼這個網站示範會刻意讓 95% credible interval 跨過 0？</summary>
+    <p>因為這可以避免另一個常見誤解：看到「91% 為正」就以為研究已經非常確定。91% 仍然代表 posterior 裡大約有 9% 落在 0 以下；若你要求 95% 或 97.5% 以上的方向把握，這份證據仍不夠強。Bayesian 的價值正是把這種不確定性完整保留下來，而不是再創造另一個二分門檻。</p>
+  </details>
+
+  <details>
+    <summary>進階註記：這些數字是不是所有 p=.09 都會得到？</summary>
+    <p><strong>不是。</strong>這裡的 +0.45、91%、65% 都是為了教學而建立的一組彼此一致的示範。真正研究中的 posterior probability 會受到實際效果估計、不確定性、模型、資料分布與 prior 影響。因此不能只知道 p=.09，就反推出 Bayesian probability。</p>
+  </details>
+</section>
+
 <section id="prior">
   <h2>4. Prior 不用背公式：你只要會回答三個問題</h2>
   <div class="grid3">
@@ -477,7 +684,7 @@ pp_check(fit)</code></pre>
 </div>
 
 <div class="footer">
-  Bayesian EMS Academy v2｜零公式入門版<br>
+  Bayesian EMS Academy v3｜零公式深度教學版<br>
   原則：先懂名詞 → 再懂模型 → 再跑 R → 最後才碰更進階的數學推導。
 </div>
 
@@ -519,6 +726,34 @@ document.querySelectorAll('.copy').forEach(btn=>{
     try{await navigator.clipboard.writeText(btn.nextElementSibling.innerText);btn.textContent='已複製';setTimeout(()=>btn.textContent='複製',1000)}catch(e){btn.textContent='請手動複製'}
   })
 });
+
+function updatePriorDemo(){
+  const v=document.getElementById('priorDemo').value;
+  const out=document.getElementById('priorDemoResult');
+  const map={
+    weak:{
+      pos:'約 95%',
+      meaningful:'約 82%',
+      text:'Prior 很寬鬆時，資料中的 +0.45 幾乎不被拉回，因此 posterior 更偏向正效果。'
+    },
+    moderate:{
+      pos:'約 91%',
+      meaningful:'約 65%',
+      text:'這就是本頁主要示範：溫和保守的 Prior 會把估計稍微往 0 拉，但大部分 posterior 仍位於正向。'
+    },
+    skeptical:{
+      pos:'約 80%',
+      meaningful:'約 24%',
+      text:'如果研究開始前就非常懷疑會有明顯效果，同樣的資料不足以完全推翻這個保守看法，因此 posterior 會更靠近 0。'
+    }
+  };
+  const r=map[v];
+  out.innerHTML='<strong>效果為正的機率：'+r.pos+'</strong><br>'+
+                '超過 +0.20 實務門檻的機率：'+r.meaningful+'<br><br>'+r.text+
+                '<br><br><span class="muted">注意：這是固定同一批教學資料，只改 Prior 的示範，不是把 p-value 做換算。</span>';
+}
+updatePriorDemo();
+
 </script>
 </body>
 </html>
