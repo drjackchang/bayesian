@@ -3,495 +3,522 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>救護研究的貝氏推論｜統計小白入門</title>
-<meta name="description" content="專為到院前緊急救護、EMT、護理與健康研究者設計的 Bayesian 統計小白教學。從 Prior、Posterior 到 R/brms、HBM×TTM、重複測量與論文報告。">
+<title>Bayesian EMS Academy｜救護研究貝氏推論零公式入門</title>
+<meta name="description" content="專為救護、護理、EMT與健康研究者設計的貝氏推論零公式教學網站。從 Prior、Posterior、MCMC 到前後測、HBM×TTM、重複測量與 R/brms。">
 <style>
 :root{
-  --bg:#f5f7fb; --card:#ffffff; --text:#14213d; --muted:#5d6b82;
-  --line:#dfe5ef; --accent:#0f6b78; --accent2:#174b73; --warm:#f3a847;
-  --good:#1f7a5b; --warn:#a05a16; --bad:#9b3944; --code:#0f172a;
-  --shadow:0 8px 28px rgba(21,42,73,.08);
+  --bg:#f5f7fb;--card:#fff;--ink:#132238;--muted:#607087;--line:#dce4ef;
+  --blue:#174f78;--teal:#0f747b;--orange:#e99a32;--green:#26745a;--red:#9d4550;
+  --softblue:#edf5fb;--softteal:#edf8f7;--softorange:#fff6e8;--softred:#fff1f3;
+  --shadow:0 10px 28px rgba(20,49,80,.07)
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
-a{color:var(--accent2)}
-.topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.topbar-inner{max-width:1180px;margin:auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font-weight:800;letter-spacing:.02em}
-.brand small{display:block;color:var(--muted);font-weight:500;font-size:.75rem}
-.progress{height:4px;background:#e7edf5}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--warm))}
-.hero{background:linear-gradient(135deg,#103a56 0%,#0f6b78 70%,#23808d 100%);color:white}
-.hero-inner{max-width:1180px;margin:auto;padding:76px 20px 64px;display:grid;grid-template-columns:1.5fr .8fr;gap:42px;align-items:center}
-.hero h1{font-size:clamp(2rem,5vw,4rem);line-height:1.08;margin:0 0 18px}
-.hero p{font-size:1.12rem;color:#e5f3f5;max-width:760px}
-.pill{display:inline-block;padding:7px 12px;border:1px solid rgba(255,255,255,.35);border-radius:999px;margin:4px;font-size:.88rem}
-.hero-card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:22px;border-radius:18px}
-.hero-card b{color:#fff0c9}
-.layout{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:260px 1fr;gap:28px;padding:30px 20px 80px}
-nav.side{position:sticky;top:78px;align-self:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);max-height:calc(100vh - 100px);overflow:auto}
-nav.side a{display:block;text-decoration:none;color:var(--muted);padding:8px 10px;border-radius:8px;font-size:.93rem}
-nav.side a:hover{background:#eef5f6;color:var(--accent)}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.78}
+a{color:var(--blue)}
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{max-width:1200px;margin:auto;padding:11px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.logo{font-weight:850}.logo small{display:block;font-weight:500;color:var(--muted);font-size:.75rem}
+.progress{height:4px;background:#e8edf4}.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--orange))}
+.hero{background:linear-gradient(135deg,#0f3655,#0f747b);color:white}
+.heroin{max-width:1200px;margin:auto;padding:72px 20px 62px;display:grid;grid-template-columns:1.45fr .8fr;gap:34px}
+.hero h1{font-size:clamp(2.2rem,5vw,4.3rem);line-height:1.06;margin:0 0 18px}
+.hero p{font-size:1.14rem;color:#e9f5f6;max-width:800px}
+.hero-card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:22px}
+.hero-card strong{color:#ffe2ad}
+.pill{display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.3);border-radius:999px;margin:3px;font-size:.85rem}
+.wrap{max-width:1200px;margin:auto;padding:28px 20px 80px;display:grid;grid-template-columns:260px 1fr;gap:26px}
+nav{position:sticky;top:77px;align-self:start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);max-height:calc(100vh - 94px);overflow:auto}
+nav a{display:block;padding:8px 9px;text-decoration:none;color:var(--muted);font-size:.92rem;border-radius:8px}
+nav a:hover{background:var(--softteal);color:var(--teal)}
 section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;margin-bottom:24px;box-shadow:var(--shadow)}
-h2{font-size:1.85rem;margin:0 0 14px;line-height:1.25} h3{margin-top:30px;font-size:1.28rem} h4{margin-top:24px}
-.lead{font-size:1.08rem;color:#33425b}
-.callout{border-left:5px solid var(--accent);background:#eef7f8;padding:16px 18px;border-radius:10px;margin:18px 0}
-.callout.warn{border-color:var(--warm);background:#fff8ea}
-.callout.good{border-color:var(--good);background:#eef9f5}
-.callout.bad{border-color:var(--bad);background:#fff1f3}
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.mini{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fbfcfe}
-.mini h4{margin:0 0 5px}.muted{color:var(--muted)}
-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.94rem}
-th,td{border-bottom:1px solid var(--line);padding:11px 10px;text-align:left;vertical-align:top}th{background:#f4f7fb}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-pre{background:var(--code);color:#e7edf5;padding:18px;border-radius:13px;overflow:auto;position:relative;font-size:.88rem;line-height:1.55}
-.copy{position:absolute;right:10px;top:10px;background:#263349;color:#fff;border:0;border-radius:7px;padding:6px 9px;cursor:pointer}
-.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
-.step{padding:12px 15px;border:1px solid var(--line);background:#fbfcfe;border-radius:12px;font-weight:700}
-.arrow{color:var(--accent);font-weight:900;font-size:1.3rem}
-.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:700}
-.badge.green{background:#e8f7f0;color:#166044}.badge.orange{background:#fff2de;color:#8f5316}.badge.blue{background:#e8f1fb;color:#174b73}
-.interactive{background:#f8fbfd;border:1px dashed #b9cad9;border-radius:14px;padding:18px}
-.control{margin:14px 0}.control label{display:flex;justify-content:space-between;font-weight:700}.control input[type=range]{width:100%}
-.resultbox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.result{background:white;border:1px solid var(--line);padding:12px;border-radius:12px}.result b{font-size:1.25rem;color:var(--accent2)}
-canvas{width:100%;height:260px;background:white;border:1px solid var(--line);border-radius:12px;margin-top:14px}
-.quiz select,.quiz input{width:100%;padding:10px;border:1px solid #cfd8e5;border-radius:9px;background:white;margin-top:5px}
-.quiz button{border:0;background:var(--accent);color:white;padding:10px 14px;border-radius:9px;cursor:pointer;font-weight:700}
-#recommendation{margin-top:14px;background:white;border-left:4px solid var(--warm);padding:14px;border-radius:9px}
-details{border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin:10px 0;background:#fbfcfe}summary{cursor:pointer;font-weight:750}
-.footer{max-width:1180px;margin:0 auto 50px;padding:0 20px;color:var(--muted);font-size:.9rem}
-kbd{border:1px solid #ccd4df;border-bottom-width:2px;background:white;border-radius:5px;padding:1px 5px}
-@media(max-width:900px){.hero-inner,.layout{grid-template-columns:1fr}.hero-inner{padding-top:54px}.side{display:none}.grid2,.grid3,.resultbox{grid-template-columns:1fr}section{padding:22px}}
+h2{font-size:1.9rem;line-height:1.25;margin:0 0 12px}h3{font-size:1.35rem;margin-top:28px}h4{margin:0 0 6px}
+.lead{font-size:1.08rem;color:#35475f}
+.callout{border-left:5px solid var(--teal);background:var(--softteal);padding:16px 18px;border-radius:10px;margin:16px 0}
+.callout.orange{border-color:var(--orange);background:var(--softorange)}
+.callout.red{border-color:var(--red);background:var(--softred)}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{border:1px solid var(--line);background:#fbfcfe;border-radius:14px;padding:17px}
+.card p{margin:5px 0}.muted{color:var(--muted)}
+.term{border:1px solid var(--line);border-radius:15px;padding:18px;background:#fff}
+.term .name{font-size:1.15rem;font-weight:850;color:var(--blue)}
+.term .en{font-size:.82rem;color:var(--muted);font-weight:600}
+.label{font-size:.77rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--teal);margin-top:10px}
+.example{background:#f8fbfd;border-left:4px solid var(--blue);padding:11px 13px;border-radius:8px;margin-top:8px}
+.mis{background:var(--softorange);border-left:4px solid var(--orange);padding:11px 13px;border-radius:8px;margin-top:8px}
+.flow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.step{padding:12px 15px;border:1px solid var(--line);background:#fbfcfe;border-radius:12px;font-weight:800}
+.arrow{font-size:1.4rem;color:var(--teal);font-weight:900}
+table{width:100%;border-collapse:collapse;margin:17px 0;font-size:.94rem}
+th,td{border-bottom:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}th{background:#f2f6fa}
+details{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fbfcfe;margin:10px 0}summary{cursor:pointer;font-weight:800}
+.searchbox{display:flex;gap:10px;margin:16px 0}.searchbox input{flex:1;padding:12px 13px;border:1px solid #ccd6e3;border-radius:10px;font-size:1rem}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:.78rem;font-weight:800;background:var(--softblue);color:var(--blue)}
+.quiz{background:#f8fbfd;border:1px dashed #b8c8da;border-radius:14px;padding:18px}.quiz select{width:100%;padding:10px;border:1px solid #cfd8e5;border-radius:9px;background:white}.quiz button{border:0;background:var(--teal);color:white;padding:10px 14px;border-radius:9px;font-weight:800;cursor:pointer}
+.result{margin-top:14px;padding:14px;background:white;border-left:4px solid var(--orange);border-radius:9px}
+pre{background:#0f172a;color:#e8edf5;padding:18px;border-radius:12px;overflow:auto;line-height:1.55;font-size:.88rem;position:relative}
+.copy{position:absolute;right:10px;top:10px;border:0;background:#26364e;color:white;border-radius:7px;padding:6px 9px;cursor:pointer}
+.path{counter-reset:p}
+.path .item{counter-increment:p;position:relative;padding:0 0 22px 50px}
+.path .item:before{content:counter(p);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:white;font-weight:900}
+.path .item:after{content:"";position:absolute;left:16px;top:35px;width:2px;height:calc(100% - 20px);background:#dbe7e9}
+.path .item:last-child:after{display:none}
+.footer{max-width:1200px;margin:0 auto 50px;padding:0 20px;color:var(--muted);font-size:.9rem}
+@media(max-width:900px){.heroin,.wrap{grid-template-columns:1fr}nav{display:none}.grid2,.grid3{grid-template-columns:1fr}section{padding:22px}}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">救護研究的貝氏推論 <small>Bayesian EMS Research — 從零開始</small></div>
-    <div class="muted">給統計小白・R / brms 路線</div>
+<div class="top">
+  <div class="topin">
+    <div class="logo">Bayesian EMS Academy<small>救護研究貝氏推論・零公式入門</small></div>
+    <div class="muted">先懂語言，再學分析</div>
   </div>
-  <div class="progress"><div id="progressBar"></div></div>
+  <div class="progress"><div id="bar"></div></div>
 </div>
 
 <header class="hero">
-  <div class="hero-inner">
-    <div>
-      <span class="pill">到院前緊急救護</span><span class="pill">問卷研究</span><span class="pill">重複測量</span><span class="pill">R / brms</span>
-      <h1>不要先學公式。<br>先學會問「機率」。</h1>
-      <p>這不是一本數學課本。這個網站用 OHCA、救護教育、HBM × TTM、安全搬運與重複測量資料，帶你從「Prior 到底是什麼？」一路做到可以寫進論文的方法與結果。</p>
-    </div>
-    <div class="hero-card">
-      <b>一句話版本</b><br>
-      傳統統計常問：「如果沒有效果，現在看到這些資料有多奇怪？」<br><br>
-      貝氏統計更常問：「看完現在的資料後，我有多相信效果是正的、負的，或大到具有臨床意義？」
-    </div>
+<div class="heroin">
+  <div>
+    <span class="pill">不背公式</span><span class="pill">大量名詞翻譯</span><span class="pill">救護情境</span><span class="pill">R / brms</span>
+    <h1>先把貝氏的話<br>翻成你聽得懂的中文。</h1>
+    <p>這個網站不是要你先變成統計學家。目標是讓 EMT、護理師、臨床研究者先能看懂一篇 Bayesian 論文在說什麼，再一步一步做到自己分析前後測、問卷、OHCA 與重複測量資料。</p>
   </div>
+  <div class="hero-card">
+    <strong>全站第一原則</strong><br><br>
+    初學階段不靠數學公式。每個概念都先回答五件事：<br>
+    ① 這個詞中文到底是什麼？<br>
+    ② 用白話怎麼說？<br>
+    ③ 在救護研究裡長什麼樣？<br>
+    ④ 最常誤會什麼？<br>
+    ⑤ 我什麼時候真的會用到？
+  </div>
+</div>
 </header>
 
-<div class="layout">
-<nav class="side">
-  <a href="#start">0. 先建立直覺</a>
-  <a href="#prior">1. Prior 不可怕</a>
-  <a href="#play">2. 互動：看資料怎麼更新信念</a>
-  <a href="#ems">3. 救護研究何時適合 Bayesian</a>
-  <a href="#questionnaire">4. HBM × TTM 問卷</a>
-  <a href="#gee">5. 原本 GEE 怎麼轉</a>
-  <a href="#chooser">6. 模型選擇器</a>
-  <a href="#rsetup">7. R 軟體與套件</a>
-  <a href="#rcode">8. R / brms 實作</a>
-  <a href="#diagnostics">9. 模型檢查</a>
-  <a href="#report">10. 論文怎麼報</a>
-  <a href="#publish">11. 已發表資料再分析</a>
-  <a href="#faq">12. 統計小白 FAQ</a>
-  <a href="#refs">參考資源</a>
+<div class="wrap">
+<nav>
+  <a href="#roadmap">學習地圖</a>
+  <a href="#language">1. 先學貝氏的語言</a>
+  <a href="#glossary">2. 名詞大辭典</a>
+  <a href="#compare">3. 傳統統計 vs 貝氏</a>
+  <a href="#prior">4. Prior 怎麼想</a>
+  <a href="#posterior">5. Posterior 怎麼看</a>
+  <a href="#mcmc">6. MCMC 到底在幹嘛</a>
+  <a href="#models">7. 研究問題怎麼選模型</a>
+  <a href="#hbmttm">8. HBM × TTM</a>
+  <a href="#prepost">9. 前後測與重複測量</a>
+  <a href="#multilevel">10. 多層次資料</a>
+  <a href="#diagnostics">11. 模型有沒有跑壞</a>
+  <a href="#reporting">12. 論文怎麼報</a>
+  <a href="#r">13. R / brms</a>
+  <a href="#check">14. 小白自我檢查</a>
 </nav>
 
 <main>
-<section id="start">
-  <h2>0. 先建立直覺：貝氏不是「另一種題目」</h2>
-  <p class="lead">同一份問卷、同一份 OHCA registry、同一份重複測量資料，都可以做傳統統計，也可以做 Bayesian。差別主要在<strong>模型與推論方式</strong>，不是問卷要出什麼「貝氏題」。</p>
+<section id="roadmap">
+  <h2>學習地圖：你不需要一次懂全部</h2>
+  <p class="lead">真正適合小白的順序，不是「先學定理」，而是先會看懂統計語言，再會解讀結果，最後才自己跑模型。</p>
+  <div class="path">
+    <div class="item"><h4>Level 1｜聽得懂</h4><p>知道 Prior、Likelihood、Posterior、Credible interval 是什麼。</p></div>
+    <div class="item"><h4>Level 2｜看得懂</h4><p>看得懂一篇 Bayesian 論文結果，不再只找 p-value。</p></div>
+    <div class="item"><h4>Level 3｜選得對</h4><p>知道二元、連續、有序、重複測量、分隊群集各自該選什麼模型。</p></div>
+    <div class="item"><h4>Level 4｜跑得動</h4><p>用 R / brms 跑出第一個 model，知道怎麼看 diagnostics。</p></div>
+    <div class="item"><h4>Level 5｜寫得出</h4><p>能把 posterior、可信區間與預測機率寫成臨床可理解的論文結果。</p></div>
+  </div>
+</section>
+
+<section id="language">
+  <h2>1. 先學貝氏的語言，不先學數學</h2>
   <div class="flow">
-    <div class="step">Prior<br><small>看資料前的合理範圍</small></div><div class="arrow">＋</div>
-    <div class="step">Likelihood<br><small>這次資料告訴你的事</small></div><div class="arrow">→</div>
-    <div class="step">Posterior<br><small>看資料後更新的機率分布</small></div>
+    <div class="step">你原本認為<br>「大概會怎樣」</div><div class="arrow">→</div>
+    <div class="step">看到這次研究資料</div><div class="arrow">→</div>
+    <div class="step">更新成<br>「現在比較相信什麼」</div>
   </div>
-  <div class="grid2">
-    <div class="mini"><h4>傳統結果</h4><p>OR = 1.25，95% CI 0.96–1.63，p = .09</p><p class="muted">很容易被縮成「不顯著」。</p></div>
-    <div class="mini"><h4>Bayesian 結果</h4><p>介入有益的機率 91%；達到預先定義臨床重要效果的機率 64%。</p><p class="muted">比較貼近臨床決策語言。</p></div>
+  <p>Bayesian 的核心其實只有這件事：<strong>新的資料出現後，更新我們對未知事情的判斷。</strong></p>
+  <div class="callout">
+    例：你原本認為「安全搬運訓練應該有幫助，但不太可能讓所有人都大幅改善」。收完 200 位 EMT 的前後測後，資料會把這個原本的看法往某個方向更新。最後得到的不是「顯著／不顯著」而已，而是一整個「效果可能在哪裡」的分布。
   </div>
+</section>
+
+<section id="glossary">
+  <h2>2. Bayesian 名詞大辭典</h2>
+  <p>不背英文也沒關係，但你必須知道論文裡這些詞在說什麼。可直接搜尋關鍵字。</p>
+  <div class="searchbox"><input id="termSearch" placeholder="例如：Prior、MCMC、可信區間、R-hat、multilevel"></div>
+
+  <div id="terms" class="grid2">
+    <div class="term" data-key="prior 先驗">
+      <div class="name">Prior <span class="en">先驗分布</span></div>
+      <div class="label">一句話</div><p>在看這次資料以前，對「效果大概可能落在哪裡」的合理想法。</p>
+      <div class="label">救護例子</div><div class="example">你不會先相信一堂 2 小時安全搬運課可以讓行為分數暴增 10 倍，所以你先把「非常誇張的效果」視為比較不可能。</div>
+      <div class="label">常見誤解</div><div class="mis">不是「研究者自己亂猜答案」。好的 prior 要有理由，而且可以做敏感度分析。</div>
+    </div>
+
+    <div class="term" data-key="likelihood 似然 data 資料">
+      <div class="name">Likelihood <span class="en">似然</span></div>
+      <div class="label">一句話</div><p>這次真正收集到的資料，對各種可能效果提供多少支持。</p>
+      <div class="label">救護例子</div><div class="example">你看到介入組多數 EMT 的安全搬運分數提升，而對照組幾乎沒變，這批資料會把「介入有效」的可能性往上推。</div>
+      <div class="label">常見誤解</div><div class="mis">它不是另一份問卷，也不是一個要單獨背的分數；它是模型如何「看待資料」的一部分。</div>
+    </div>
+
+    <div class="term" data-key="posterior 後驗">
+      <div class="name">Posterior <span class="en">後驗分布</span></div>
+      <div class="label">一句話</div><p>看完這次資料後，你現在對效果的最新判斷。</p>
+      <div class="label">救護例子</div><div class="example">分析後你可能得到：訓練效果大多落在正向，而且達到實務有意義改善的可能性也不低。</div>
+      <div class="label">常見誤解</div><div class="mis">Posterior 不是一個單一數字；它是一整個「可能效果長什麼樣」的分布。</div>
+    </div>
+
+    <div class="term" data-key="credible interval 可信區間 ci">
+      <div class="name">Credible Interval <span class="en">可信區間</span></div>
+      <div class="label">一句話</div><p>在目前模型與資料下，我們認為真正效果很可能位於的一段範圍。</p>
+      <div class="label">救護例子</div><div class="example">如果安全搬運訓練的改善幅度大部分落在小幅到中度改善之間，可信區間會把這段不確定性呈現出來。</div>
+      <div class="label">常見誤解</div><div class="mis">不要把傳統 confidence interval 和 Bayesian credible interval 當成完全相同概念。</div>
+    </div>
+
+    <div class="term" data-key="posterior probability 機率">
+      <div class="name">Posterior Probability <span class="en">後驗機率</span></div>
+      <div class="label">一句話</div><p>看完資料後，某個你關心的條件成立的機率。</p>
+      <div class="label">救護例子</div><div class="example">「訓練能改善安全搬運行為的機率是多少？」或「改善超過我們認為有實務意義門檻的機率是多少？」</div>
+      <div class="label">常見誤解</div><div class="mis">不是把 p-value 換一個名字；它回答的問題不一樣。</div>
+    </div>
+
+    <div class="term" data-key="uncertainty 不確定性">
+      <div class="name">Uncertainty <span class="en">不確定性</span></div>
+      <div class="label">一句話</div><p>我們承認研究結果不是百分之百確定，而是有一段可能範圍。</p>
+      <div class="label">救護例子</div><div class="example">樣本只有 40 人時，效果估計通常會比較模糊；有 800 人時，可能會更集中。</div>
+      <div class="label">常見誤解</div><div class="mis">區間很寬不是「分析失敗」，有時只是資料真的沒有提供足夠資訊。</div>
+    </div>
+
+    <div class="term" data-key="mcmc sampling chain 抽樣">
+      <div class="name">MCMC <span class="en">馬可夫鏈蒙地卡羅</span></div>
+      <div class="label">一句話</div><p>電腦反覆探索各種可能的參數值，最後拼出 posterior 長什麼樣。</p>
+      <div class="label">生活比喻</div><div class="example">像派出好幾組搜救隊在山區找可能的位置；如果每組最後都探索到相似區域，你比較放心沒有漏掉重要地方。</div>
+      <div class="label">常見誤解</div><div class="mis">你不需要會自己手算 MCMC，初學者只需要知道它是電腦怎麼把 posterior 找出來的。</div>
+    </div>
+
+    <div class="term" data-key="chain 鏈">
+      <div class="name">Chain <span class="en">抽樣鏈</span></div>
+      <div class="label">一句話</div><p>MCMC 的其中一條探索路線。</p>
+      <div class="label">救護比喻</div><div class="example">像同時派 4 組人從不同起點去找同一個失蹤者。如果最後都聚到相似區域，表示探索比較可信。</div>
+      <div class="label">常見誤解</div><div class="mis">4 chains 不是「做 4 次研究」，而是讓電腦從不同起點確認答案是否一致。</div>
+    </div>
+
+    <div class="term" data-key="rhat r-hat convergence 收斂">
+      <div class="name">R-hat <span class="en">收斂診斷指標</span></div>
+      <div class="label">一句話</div><p>看不同 chains 最後是不是已經找到差不多的地方。</p>
+      <div class="label">救護比喻</div><div class="example">4 組搜救隊最後回報的區域彼此差很大，代表「還沒找穩」；R-hat 就是在提醒你這件事。</div>
+      <div class="label">常見誤解</div><div class="mis">不是效果大小，也不是 p-value。它只是「模型跑得穩不穩」的檢查。</div>
+    </div>
+
+    <div class="term" data-key="ess effective sample size 有效樣本">
+      <div class="name">ESS <span class="en">有效抽樣數</span></div>
+      <div class="label">一句話</div><p>雖然電腦抽了很多次，但真正提供多少「不重複資訊」。</p>
+      <div class="label">生活比喻</div><div class="example">你問 100 個人，但其中 80 個都只在重複同一句話，那有效資訊量就不像真的有 100 份獨立意見。</div>
+      <div class="label">常見誤解</div><div class="mis">它不是你研究的受試者人數。</div>
+    </div>
+
+    <div class="term" data-key="posterior predictive check ppc 預測檢查">
+      <div class="name">Posterior Predictive Check <span class="en">後驗預測檢查</span></div>
+      <div class="label">一句話</div><p>讓模型自己「生成一批假資料」，看看像不像你真正觀察到的資料。</p>
+      <div class="label">救護例子</div><div class="example">如果模型說大部分 EMT 安全搬運分數都集中在很高分，但真實資料其實兩極化，表示模型可能沒有抓到資料結構。</div>
+      <div class="label">常見誤解</div><div class="mis">模型成功跑完不代表模型就適合；PPC 是必做的合理性檢查。</div>
+    </div>
+
+    <div class="term" data-key="sensitivity analysis 敏感度分析 prior">
+      <div class="name">Sensitivity Analysis <span class="en">敏感度分析</span></div>
+      <div class="label">一句話</div><p>故意換幾種合理設定，看結論會不會被某一個設定綁死。</p>
+      <div class="label">救護例子</div><div class="example">把 prior 設得稍微保守、稍微寬鬆，各跑一次；如果「自我效能是重要因素」的結論都差不多，結果就更穩健。</div>
+      <div class="label">常見誤解</div><div class="mis">不是一直換到找到自己喜歡的結果。</div>
+    </div>
+
+    <div class="term" data-key="weakly informative prior 弱資訊">
+      <div class="name">Weakly Informative Prior <span class="en">弱資訊先驗</span></div>
+      <div class="label">一句話</div><p>不強迫答案，但先排除太離譜的效果。</p>
+      <div class="label">救護例子</div><div class="example">你允許安全搬運訓練有正有負，但先不認為一堂課會讓行為分數改變到完全不合理的程度。</div>
+      <div class="label">常見誤解</div><div class="mis">不是「沒有 prior」。Bayesian 一定有 prior，只是 prior 可以很寬鬆。</div>
+    </div>
+
+    <div class="term" data-key="multilevel hierarchical 階層 多層次">
+      <div class="name">Multilevel Model <span class="en">多層次模型</span></div>
+      <div class="label">一句話</div><p>資料不是每一筆都彼此獨立，而是「人包在人裡、分隊包在機構裡」。</p>
+      <div class="label">救護例子</div><div class="example">病人屬於某位 EMT、EMT 屬於某分隊、分隊屬於某消防局。這些層級可能一起影響結果。</div>
+      <div class="label">常見誤解</div><div class="mis">不是因為模型「比較高級」才用，而是因為資料結構本來就有層級。</div>
+    </div>
+
+    <div class="term" data-key="random effect 隨機效果">
+      <div class="name">Random Effect <span class="en">隨機效果</span></div>
+      <div class="label">一句話</div><p>讓不同人、不同分隊、不同機構可以有自己的起點或變化方式。</p>
+      <div class="label">救護例子</div><div class="example">有些 EMT baseline 本來就比較高分；有些分隊安全文化特別強。模型可以容許這些差異存在。</div>
+      <div class="label">常見誤解</div><div class="mis">「random」不是亂數，也不是說這些人隨便被抽到；它是統計模型的結構名稱。</div>
+    </div>
+
+    <div class="term" data-key="fixed effect population-level 固定效果">
+      <div class="name">Population-level Effect <span class="en">群體層級效果</span></div>
+      <div class="label">一句話</div><p>你真正想知道的整體趨勢，例如平均來說介入組是否比對照組改善更多。</p>
+      <div class="label">救護例子</div><div class="example">不管某一位 EMT 特別高分或低分，整體而言安全搬運課程是否有效。</div>
+      <div class="label">常見誤解</div><div class="mis">在不同軟體或模型裡名稱可能不同，先理解概念比背名詞重要。</div>
+    </div>
+
+    <div class="term" data-key="ordinal regression 有序 ttm likert">
+      <div class="name">Ordinal Model <span class="en">有序類別模型</span></div>
+      <div class="label">一句話</div><p>結果有高低順序，但每一級之間不能假設完全等距。</p>
+      <div class="label">救護例子</div><div class="example">TTM 的前意圖期、意圖期、準備期、行動期、維持期有順序，但「前意圖→意圖」和「行動→維持」不一定是同樣距離。</div>
+      <div class="label">常見誤解</div><div class="mis">看到 1、2、3、4、5 不代表它一定就是普通連續分數。</div>
+    </div>
+
+    <div class="term" data-key="logistic binary 二元">
+      <div class="name">Logistic Model <span class="en">二元結果模型</span></div>
+      <div class="label">一句話</div><p>結果只有兩種主要狀態時使用。</p>
+      <div class="label">救護例子</div><div class="example">ROSC 有／沒有、插管成功／失敗、是否發生搬運傷害。</div>
+      <div class="label">常見誤解</div><div class="mis">它不是只屬於傳統統計；Bayesian 一樣可以做 logistic model。</div>
+    </div>
+
+    <div class="term" data-key="linear regression 連續">
+      <div class="name">Linear Model <span class="en">連續結果模型</span></div>
+      <div class="label">一句話</div><p>結果是一個可以合理看成連續的分數或數值。</p>
+      <div class="label">救護例子</div><div class="example">安全搬運總分、知識分數、某些生理測量、經適當處理後的時間指標。</div>
+      <div class="label">常見誤解</div><div class="mis">不是所有 1–5 Likert 題都應直接當 linear outcome；要看是單題還是構面分數及研究目的。</div>
+    </div>
+
+    <div class="term" data-key="interaction 交互作用 group time">
+      <div class="name">Interaction <span class="en">交互作用</span></div>
+      <div class="label">一句話</div><p>一個因素的效果，會不會因另一個因素不同而改變。</p>
+      <div class="label">救護例子</div><div class="example">介入組和對照組「隨時間改變的幅度」是否不同。前後測研究常關心的是這個，而不是只看兩組最後誰比較高。</div>
+      <div class="label">常見誤解</div><div class="mis">不是把兩個變項相乘來「增加顯著性」，而是回答一個真正不同的研究問題。</div>
+    </div>
+
+    <div class="term" data-key="clinically meaningful threshold 臨床意義 實務門檻">
+      <div class="name">Clinically Meaningful Threshold <span class="en">實務／臨床意義門檻</span></div>
+      <div class="label">一句話</div><p>不是「只要大於零就算有用」，而是先定義多大的改善才真的值得在實務上採用。</p>
+      <div class="label">救護例子</div><div class="example">你可以先定義：安全搬運行為分數至少增加某個幅度，才算值得單位投入教育成本。</div>
+      <div class="label">常見誤解</div><div class="mis">門檻應該先有實務理由，不能看到結果後才選一個漂亮數字。</div>
+    </div>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>3. 傳統統計 vs 貝氏：不是誰取代誰</h2>
+  <table>
+    <thead><tr><th>你在想的問題</th><th>傳統統計常見語言</th><th>Bayesian 常見語言</th></tr></thead>
+    <tbody>
+      <tr><td>有沒有差？</td><td>p-value、confidence interval</td><td>posterior、credible interval</td></tr>
+      <tr><td>效果是不是正的？</td><td>間接透過檢定與區間解讀</td><td>直接報「效果為正的 posterior probability」</td></tr>
+      <tr><td>效果夠不夠大？</td><td>需另外定義 effect size / threshold</td><td>可直接問「超過實務門檻的機率」</td></tr>
+      <tr><td>分隊、個體差很多？</td><td>mixed model / GEE</td><td>Bayesian multilevel model 很自然</td></tr>
+    </tbody>
+  </table>
+  <div class="callout orange">初學者不要陷入「Bayesian 比 p-value 高級」這種二分法。真正重要的是：你的研究問題適合什麼 estimand、資料結構是什麼、結果要怎麼讓臨床人員理解。</div>
 </section>
 
 <section id="prior">
-  <h2>1. Prior 到底怎麼辦？</h2>
-  <p>對初學者，先不要從「找一篇文獻把效果塞進 prior」開始。最穩健的第一步是：<strong>標準化 predictor ＋ 弱資訊先驗（weakly informative prior）＋敏感度分析</strong>。</p>
-  <div class="callout good">
-    <strong>實用預設：</strong>如果 HBM 各構面已轉成 z-score（平均 0、SD 1），可先從迴歸係數 <code>Normal(0, 0.5)</code> 開始，並用 <code>Normal(0, 1)</code> 做 sensitivity analysis。
-  </div>
-  <table>
-    <thead><tr><th>Prior</th><th>白話翻譯</th><th>適合情境</th></tr></thead>
-    <tbody>
-      <tr><td>Normal(0, 0.5)</td><td>正負都有可能，但先不相信效果會大得離譜</td><td>標準化問卷 predictor 的常用初學者起點</td></tr>
-      <tr><td>Normal(0, 1)</td><td>比上面寬鬆，允許更大的效果</td><td>敏感度分析或對效果尺度較不確定</td></tr>
-      <tr><td>文獻資訊 prior</td><td>把之前研究的估計正式帶進來</td><td>已有高度可比研究，而且你能說明轉換方式</td></tr>
-      <tr><td>方向性 prior</td><td>例如「效益應該是正向」</td><td>理論與先驗證據非常強；初學研究不必急著用</td></tr>
-    </tbody>
-  </table>
-  <div class="callout warn"><strong>不要做：</strong>看完自己的結果後才挑一個能讓答案漂亮的 prior。Prior 應在主要分析前有理由地設定，並透明報告 sensitivity analysis。</div>
-</section>
-
-<section id="play">
-  <h2>2. 互動：資料如何把 Prior 更新成 Posterior</h2>
-  <p>下面用最簡單的「成功率」例子。想像你在看某個救護訓練後的正確操作率。這不是你最後論文一定會用的模型，但它最容易建立直覺。</p>
-  <div class="interactive">
-    <div class="control"><label>Prior 平均成功率 <span id="pmv">50%</span></label><input id="priorMean" type="range" min="10" max="90" value="50"></div>
-    <div class="control"><label>Prior 強度（相當於幾個虛擬觀察） <span id="psv">10</span></label><input id="priorStrength" type="range" min="2" max="60" value="10"></div>
-    <div class="control"><label>這次資料：總樣本 n <span id="nv">50</span></label><input id="nObs" type="range" min="5" max="300" value="50"></div>
-    <div class="control"><label>其中成功人數 <span id="kv">35</span></label><input id="kObs" type="range" min="0" max="50" value="35"></div>
-    <div class="resultbox">
-      <div class="result">Prior 平均<br><b id="priorOut">50.0%</b></div>
-      <div class="result">資料成功率<br><b id="dataOut">70.0%</b></div>
-      <div class="result">Posterior 平均<br><b id="postOut">66.7%</b></div>
-    </div>
-    <canvas id="bayesCanvas" width="900" height="300"></canvas>
-    <p class="muted">觀察：把 n 拉大，你會看到 posterior 越來越靠近資料；把 prior 強度拉大，prior 對 posterior 的影響會增加。</p>
-  </div>
-</section>
-
-<section id="ems">
-  <h2>3. 到院前緊急救護，什麼時候特別值得用 Bayesian？</h2>
+  <h2>4. Prior 不用背公式：你只要會回答三個問題</h2>
   <div class="grid3">
-    <div class="mini"><span class="badge blue">臨床</span><h4>罕見事件</h4><p>兒童 OHCA、needle thoracostomy、困難 airway、不良事件。</p></div>
-    <div class="mini"><span class="badge blue">系統</span><h4>階層資料</h4><p>病人 → EMT → 分隊 → 消防局 → 城市。</p></div>
-    <div class="mini"><span class="badge blue">教育</span><h4>重複測量</h4><p>訓練前、訓練後、3 個月、6 個月。</p></div>
-    <div class="mini"><span class="badge blue">問卷</span><h4>行為模型</h4><p>HBM、TTM、自我效能、障礙、行動線索。</p></div>
-    <div class="mini"><span class="badge blue">決策</span><h4>臨床意義機率</h4><p>不只問「有沒有顯著」，而是問達到有意義效果的機率。</p></div>
-    <div class="mini"><span class="badge blue">試驗</span><h4>逐步更新</h4><p>資料進來後持續更新 posterior；適合 adaptive thinking。</p></div>
+    <div class="card"><h4>① 我知道方向嗎？</h4><p>如果不知道，就不要硬設正向或負向。</p></div>
+    <div class="card"><h4>② 我知道合理大小嗎？</h4><p>至少能不能排除「極端到不合理」的效果？</p></div>
+    <div class="card"><h4>③ 結論會不會被 prior 綁死？</h4><p>用 sensitivity analysis 檢查。</p></div>
   </div>
+  <h3>小白最安全的做法</h3>
+  <p>先用<strong>弱資訊 prior</strong>：不偏向正或負，但不要允許非常離譜的效果太容易出現。然後用較寬鬆的設定再跑一次；如果結論差不多，你就更放心。</p>
+  <div class="callout">你不需要在問卷裡新增「Prior 題目」。Prior 是分析模型的設定，不是受試者回答的一部分。</div>
 </section>
 
-<section id="questionnaire">
-  <h2>4. 範例：HBM × TTM「安全搬運行為改變」</h2>
-  <p class="lead">問卷本身照正常方式設計。Bayesian 從分析階段開始。</p>
-  <h3>4.1 建議資料架構</h3>
-  <table>
-    <thead><tr><th>變項</th><th>角色</th><th>可能尺度</th></tr></thead>
-    <tbody>
-      <tr><td>Susceptibility</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>Severity</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>Benefits</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>Barriers</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>Self-efficacy</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>Cues to action</td><td>HBM predictor</td><td>Likert 構面分數</td></tr>
-      <tr><td>TTM stage</td><td>主要 outcome</td><td>1–5 有序類別</td></tr>
-      <tr><td>Safe handling behavior</td><td>次要 outcome</td><td>連續/平均分數，或有序頻率</td></tr>
-    </tbody>
-  </table>
-  <h3>4.2 你真正可以問的 Bayesian 問題</h3>
-  <ul>
-    <li>自我效能越高，進入較後面 TTM stage 的機率有多高？</li>
-    <li>Barriers 的負向效果有多大機率超過「值得介入」的門檻？</li>
-    <li>哪個 HBM 構面最能改變 Action / Maintenance 的預測機率？</li>
-    <li>某種 EMT profile（高風險認知但低自我效能）落在每個 TTM stage 的機率是多少？</li>
-  </ul>
-  <div class="callout">如果 TTM 是 1–5 且確實具有順序，第一個入門模型通常是 <strong>Bayesian ordinal regression</strong>。如果同一受試者有多次測量，再加入受試者 random intercept，變成 Bayesian multilevel ordinal model。</div>
+<section id="posterior">
+  <h2>5. Posterior 怎麼看？先看「方向、大小、不確定性」</h2>
+  <div class="grid3">
+    <div class="card"><h4>方向</h4><p>效果大部分是在正向還是負向？</p></div>
+    <div class="card"><h4>大小</h4><p>改善幅度只是微小，還是可能達到實務上有意義？</p></div>
+    <div class="card"><h4>不確定性</h4><p>結果集中，還是範圍很寬？</p></div>
+  </div>
+  <p>這三件事比只問「有沒有顯著」更適合拿來跟臨床團隊溝通。</p>
 </section>
 
-<section id="gee">
-  <h2>5. 原本用 GEE 的資料，怎麼「改成 Bayesian」？</h2>
-  <div class="callout bad"><strong>先記住：</strong>Bayesian multilevel model 並不是把 GEE 按一個「Bayes 開關」。兩者常回答相近問題，但 estimand 可能不同。</div>
-  <table>
-    <thead><tr><th></th><th>GEE</th><th>Bayesian multilevel / mixed model</th></tr></thead>
-    <tbody>
-      <tr><td>常見目標</td><td>population-averaged effect</td><td>conditional / cluster-specific effect；亦可再用 posterior prediction 做 marginalization</td></tr>
-      <tr><td>重複測量關聯</td><td>working correlation</td><td>受試者/分隊 random effects 等完整機率模型</td></tr>
-      <tr><td>不確定性</td><td>SE、CI、p-value</td><td>posterior distribution、credible interval、probability statements</td></tr>
-      <tr><td>小群集/稀疏資料</td><td>可能較不穩</td><td>合理 prior 可提供 regularization</td></tr>
-    </tbody>
-  </table>
-  <h3>5.1 原本如果是這種研究</h3>
-  <p>例如：同一批 EMT 在 baseline、post-test、3 months、6 months 的安全搬運分數，原本用 GEE 比較時間與組別交互作用。</p>
-  <div class="flow"><div class="step">原 GEE<br>score ~ group × time</div><div class="arrow">→</div><div class="step">Bayesian mixed model<br>score ~ group × time + (1|id)</div></div>
-  <p>如果每個人的時間變化不同，還可考慮 random slope：<code>(1 + time | id)</code>。</p>
-  <h3>5.2 最重要的公平比較</h3>
-  <p>若要跟原 GEE 結果比較，不要只比「係數有沒有變」。先寫清楚兩個模型各自估的是什麼，再用 posterior marginal predictions / contrasts 產生接近 population-averaged 的比較量。</p>
+<section id="mcmc">
+  <h2>6. MCMC：你不需要知道它怎麼推導，只要知道怎麼檢查</h2>
+  <p class="lead">把 MCMC 想成「電腦派多組探索隊去找 posterior」。你要確定每一組最後都找到差不多的區域，而且探索量夠。</p>
+  <div class="grid3">
+    <div class="card"><span class="badge">R-hat</span><h4>大家有沒有找到同一區？</h4></div>
+    <div class="card"><span class="badge">ESS</span><h4>真正有效的探索量夠不夠？</h4></div>
+    <div class="card"><span class="badge">PPC</span><h4>模型生成的假資料像不像真的？</h4></div>
+  </div>
+  <div class="callout orange">這三個名詞先學會，就足以避免「模型跑完就直接解釋」這種最常見錯誤。</div>
 </section>
 
-<section id="chooser">
-  <h2>6. 模型選擇器：我的救護資料該跑什麼？</h2>
-  <div class="interactive quiz">
+<section id="models">
+  <h2>7. 研究問題怎麼選 Bayesian 模型？</h2>
+  <div class="quiz">
     <div class="grid2">
-      <label>Outcome 類型
-        <select id="outcomeType">
-          <option value="continuous">連續分數 / 數值</option>
-          <option value="binary">二元（是/否、存活/死亡）</option>
-          <option value="ordinal">有序類別（TTM 1–5、Likert）</option>
-          <option value="count">計數（事件次數）</option>
-          <option value="time">存活 / time-to-event</option>
+      <label>你的 outcome 是什麼？
+        <select id="otype">
+          <option value="continuous">連續分數／數值</option>
+          <option value="binary">二元：是／否</option>
+          <option value="ordinal">有序類別：TTM 1–5、單題 Likert</option>
+          <option value="count">事件次數</option>
+          <option value="time">存活時間／事件發生時間</option>
         </select>
       </label>
-      <label>有沒有重複測量 / 群集？
-        <select id="clustered">
+      <label>同一人有多次資料或有分隊／機構群集嗎？
+        <select id="cluster">
           <option value="no">沒有</option>
-          <option value="yes">有：同一人多次 / EMT / 分隊 / 機構</option>
+          <option value="yes">有</option>
         </select>
       </label>
     </div><br>
-    <button onclick="chooseModel()">告訴我模型</button>
-    <div id="recommendation">選好後按按鈕。</div>
+    <button onclick="choose()">幫我翻譯成模型名稱</button>
+    <div id="modelResult" class="result">選好後按按鈕。</div>
   </div>
 </section>
 
-<section id="rsetup">
-  <h2>7. 軟體：R 可以嗎？可以，而且很適合</h2>
-  <p>對救護研究者，我最推薦的入門路徑是 <strong>R + RStudio / Posit IDE + brms + Stan</strong>。<code>brms</code> 用很像一般迴歸的 formula 語法，背後用 Stan 做完整 Bayesian inference。</p>
-  <div class="grid2">
-    <div class="mini"><h4>brms</h4><p>最推薦給研究應用者。支援廣泛的 generalized、multilevel、multivariate models。</p></div>
-    <div class="mini"><h4>rstanarm</h4><p>語法非常接近 glm / glmer，適合熟悉傳統 regression 的人。</p></div>
-    <div class="mini"><h4>bayesplot</h4><p>畫 MCMC diagnostics 與 posterior predictive checks。</p></div>
-    <div class="mini"><h4>posterior</h4><p>整理 posterior draws、R-hat、ESS 與摘要。</p></div>
+<section id="hbmttm">
+  <h2>8. HBM × TTM 安全搬運問卷，怎麼做 Bayesian？</h2>
+  <p class="lead">最重要的不是先想「Bayesian 題目」，而是把理論構面和 outcome 定義清楚。</p>
+  <table>
+    <thead><tr><th>角色</th><th>內容</th><th>Bayesian 會問什麼</th></tr></thead>
+    <tbody>
+      <tr><td>HBM predictors</td><td>易感性、嚴重性、效益、障礙、自我效能、行動線索</td><td>哪一個因素最可能推動行為改變？</td></tr>
+      <tr><td>TTM outcome</td><td>前意圖→意圖→準備→行動→維持</td><td>某種 HBM profile 落在較後階段的機率是多少？</td></tr>
+      <tr><td>實際行為 outcome</td><td>安全搬運行為分數或頻率</td><td>哪些因素真正和行為表現有關？</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    小白版重點：TTM 1–5 是「有順序的類別」，所以通常優先考慮 ordinal model；安全搬運總分如果合理視為連續分數，可以考慮 linear model。
   </div>
-  <pre><button class="copy">複製</button><code>install.packages(c(
-  "brms",
-  "rstanarm",
-  "bayesplot",
-  "posterior",
-  "tidyverse"
-))</code></pre>
-  <div class="callout warn">第一次安裝 Stan 生態系可能需要 C++ toolchain。Windows 通常需依目前 R 版本安裝對應 Rtools。若只是初學，可先把「能成功跑一個 brms 範例」當第一個里程碑。</div>
 </section>
 
-<section id="rcode">
-  <h2>8. R / brms：從你的 HBM × TTM 開始</h2>
-  <h3>8.1 先把 HBM 構面標準化</h3>
-  <pre><button class="copy">複製</button><code>library(tidyverse)
-library(brms)
+<section id="prepost">
+  <h2>9. 前後測研究：Bayesian 最值得拿來做什麼？</h2>
+  <p>假設未來你的新研究是介入組與對照組，各自有前測、後測，甚至 3 個月追蹤。</p>
+  <div class="flow">
+    <div class="step">同一個人<br>有多次測量</div><div class="arrow">→</div>
+    <div class="step">個人本來就不一樣</div><div class="arrow">→</div>
+    <div class="step">用 multilevel / mixed model<br>把個體差異放進模型</div>
+  </div>
+  <p>真正值得回答的是：</p>
+  <ul>
+    <li>介入組比對照組「改善更多」的機率是多少？</li>
+    <li>改善幅度超過實務門檻的機率是多少？</li>
+    <li>不同受試者反應差異有多大？</li>
+    <li>效果到 3 個月是否仍可能維持？</li>
+  </ul>
+  <div class="callout orange">前後測不要只做「介入組自己前後有差、對照組自己前後沒差」，真正核心通常是兩組「改變幅度」是否不同。</div>
+</section>
 
-hbms &lt;- c("susceptibility", "severity", "benefits",
-          "barriers", "self_efficacy", "cues")
-
-dat &lt;- dat %&gt;%
-  mutate(across(all_of(hbms), ~ as.numeric(scale(.x)),
-                .names = "{.col}_z"))</code></pre>
-
-  <h3>8.2 TTM 1–5：Bayesian ordinal regression</h3>
-  <pre><button class="copy">複製</button><code>dat$ttm_stage &lt;- ordered(dat$ttm_stage, levels = 1:5)
-
-priors &lt;- c(
-  prior(normal(0, 0.5), class = "b")
-)
-
-fit_ttm &lt;- brm(
-  ttm_stage ~ susceptibility_z + severity_z + benefits_z +
-              barriers_z + self_efficacy_z + cues_z,
-  data = dat,
-  family = cumulative("logit"),
-  prior = priors,
-  chains = 4,
-  iter = 4000,
-  seed = 20260831
-)
-
-summary(fit_ttm)</code></pre>
-
-  <h3>8.3 同一人多次測量：Bayesian mixed model</h3>
-  <pre><button class="copy">複製</button><code>fit_repeat &lt;- brm(
-  safe_score ~ group * time + (1 | id),
-  data = dat_long,
-  family = gaussian(),
-  prior = c(
-    prior(normal(0, 0.5), class = "b"),
-    prior(exponential(1), class = "sd")
-  ),
-  chains = 4,
-  iter = 4000,
-  seed = 20260831
-)</code></pre>
-
-  <h3>8.4 二元臨床 outcome：例如 ROSC</h3>
-  <pre><button class="copy">複製</button><code>fit_rosc &lt;- brm(
-  rosc ~ witnessed + bystander_cpr + shockable +
-         response_time_z + (1 | station),
-  data = ohca,
-  family = bernoulli("logit"),
-  prior = c(
-    prior(normal(0, 0.5), class = "b"),
-    prior(exponential(1), class = "sd")
-  ),
-  chains = 4,
-  iter = 4000
-)</code></pre>
+<section id="multilevel">
+  <h2>10. 多層次資料：EMS 研究特別常見</h2>
+  <div class="flow">
+    <div class="step">病人</div><div class="arrow">→</div>
+    <div class="step">EMT</div><div class="arrow">→</div>
+    <div class="step">分隊</div><div class="arrow">→</div>
+    <div class="step">消防局</div>
+  </div>
+  <p>如果忽略這些層次，就好像假設「同一分隊的 50 位病人」和「來自 50 個不同分隊的 50 位病人」資訊結構完全一樣，通常不合理。</p>
+  <p>Bayesian multilevel model 的優勢之一，是能把每一層差異一起納入，並避免小樣本分隊因為偶然幾個成功案例就被估得太極端。</p>
 </section>
 
 <section id="diagnostics">
-  <h2>9. 不是跑完就算了：Bayesian 模型要檢查什麼？</h2>
-  <div class="grid2">
-    <div class="mini"><h4>① R-hat</h4><p>接近 1 是必要條件。看到明顯 > 1.01 就先檢查 sampling / convergence。</p></div>
-    <div class="mini"><h4>② Effective Sample Size</h4><p>看有效 posterior draws 是否足夠。</p></div>
-    <div class="mini"><h4>③ Trace plots</h4><p>不同 chain 應混合良好，不應卡住或漂移。</p></div>
-    <div class="mini"><h4>④ Posterior Predictive Check</h4><p>模型生成的資料，能不能合理重現你真正觀察到的資料？</p></div>
-  </div>
-  <pre><button class="copy">複製</button><code>summary(fit_ttm)
-plot(fit_ttm)
-pp_check(fit_ttm)</code></pre>
-  <div class="callout"><strong>初學者規則：</strong>沒有做 posterior predictive check，就不要急著解釋 posterior。</div>
+  <h2>11. 模型有沒有跑壞？小白只要先看這四件事</h2>
+  <table>
+    <thead><tr><th>檢查</th><th>白話問題</th><th>如果怪怪的</th></tr></thead>
+    <tbody>
+      <tr><td>R-hat</td><td>不同探索隊有沒有找到相似答案？</td><td>先不要解釋結果。</td></tr>
+      <tr><td>ESS</td><td>有效探索量夠不夠？</td><td>可能需要更多 sampling 或改善模型。</td></tr>
+      <tr><td>Trace plot</td><td>探索路線有沒有卡住或漂移？</td><td>檢查模型與 sampling。</td></tr>
+      <tr><td>Posterior predictive check</td><td>模型模擬出來的資料像不像真資料？</td><td>重新思考分布、結構或漏掉的變項。</td></tr>
+    </tbody>
+  </table>
 </section>
 
-<section id="report">
-  <h2>10. 論文結果怎麼寫，才不像在背 Bayesian 術語？</h2>
-  <h3>10.1 不只報「有/沒有」</h3>
-  <p>推薦同時報：</p>
-  <ul>
-    <li>posterior median / mean</li>
-    <li>95% credible interval</li>
-    <li>方向機率，例如 <code>P(β &gt; 0 | data)</code></li>
-    <li>若有臨床門檻，再報 <code>P(effect &gt; clinically important threshold)</code></li>
-  </ul>
-  <h3>10.2 HBM × TTM 示範句</h3>
-  <div class="callout good">
-    在控制其他 HBM 構面後，自我效能與較後期的 TTM stage 呈正向關聯；其迴歸係數的 posterior 有 98% 位於 0 以上。以預測機率呈現時，自我效能由 −1 SD 增加至 +1 SD，進入 Action/Maintenance 階段的預測機率由 XX% 增加至 YY%。
-  </div>
-  <h3>10.3 Prior 方法段示範</h3>
+<section id="reporting">
+  <h2>12. 論文不要寫成統計密碼</h2>
+  <p>最有用的 Bayesian 結果，應該讓臨床人員可以直接理解。</p>
   <div class="callout">
-    Continuous predictors were standardized before analysis. Weakly informative normal priors centered at zero were specified for population-level regression coefficients. Prior sensitivity analyses using wider normal priors were conducted to assess the robustness of posterior conclusions.
+    <strong>不好懂：</strong>「模型係數的 posterior median 為……」<br><br>
+    <strong>更好懂：</strong>「在控制其他因素後，自我效能越高，進入較後期安全搬運行為階段的可能性明顯增加。模型顯示此關係大多為正向；以預測機率呈現時，高自我效能者進入行動／維持期的機率明顯較高。」
   </div>
+  <p>統計細節還是要報，但主文應先回答臨床問題。</p>
 </section>
 
-<section id="publish">
-  <h2>11. 已經用 GEE 發表過，可以把同一資料改成 Bayesian 再發嗎？</h2>
-  <p><strong>可以做再分析，但不代表一定足以成為一篇新的 original article。</strong></p>
-  <div class="grid2">
-    <div class="mini">
-      <span class="badge green">比較有機會</span>
-      <h4>實質新問題</h4>
-      <p>例如原文只問「平均是否改變」，新研究改問個別軌跡、異質性、TTM stage transition、clinically meaningful probability，並採新的 model / estimand。</p>
-    </div>
-    <div class="mini">
-      <span class="badge orange">通常不夠</span>
-      <h4>只把 p-value 換成 posterior</h4>
-      <p>同一 outcome、同一 hypothesis、同一結論，只把 GEE 換成 Bayesian mixed model，通常新穎性不足。</p>
-    </div>
-  </div>
-  <h3>透明度最低要求</h3>
-  <ol>
-    <li>新論文清楚引用原本 GEE 論文。</li>
-    <li>Methods / cover letter 說明這是 secondary / re-analysis。</li>
-    <li>清楚列出「這篇跟原篇差在哪裡」。</li>
-    <li>不要把同一批資料包裝成一個全新的、未曾發表的 cohort。</li>
-    <li>投稿前看目標期刊對 overlapping publication / secondary analysis 的政策。</li>
-  </ol>
-  <div class="callout warn">最好的重新發表策略不是「Bayesian 取代 GEE」，而是：<strong>Bayesian 讓你回答一個原本 GEE 沒有回答、而且對救護實務更重要的新問題。</strong></div>
+<section id="r">
+  <h2>13. R 可以學，但等你懂模型在做什麼再打程式</h2>
+  <p>推薦路線：<strong>R + RStudio / Posit IDE + brms</strong>。你不需要先會原生 Stan。</p>
+  <h3>第一個目標：不是「背程式」，而是知道每一行在指定什麼</h3>
+  <pre><button class="copy">複製</button><code>library(brms)
+
+fit &lt;- brm(
+  safe_score ~ group * time + (1 | id),
+  data = dat_long,
+  family = gaussian(),
+  chains = 4
+)
+
+summary(fit)
+pp_check(fit)</code></pre>
+  <table>
+    <thead><tr><th>程式片段</th><th>白話翻譯</th></tr></thead>
+    <tbody>
+      <tr><td>safe_score</td><td>我要解釋的結果：安全搬運分數</td></tr>
+      <tr><td>group * time</td><td>我要看組別、時間，以及兩者的交互作用</td></tr>
+      <tr><td>(1 | id)</td><td>同一個人有自己的 baseline，不把每筆資料當成完全獨立</td></tr>
+      <tr><td>chains = 4</td><td>讓電腦從 4 條探索路線確認答案是否穩定</td></tr>
+      <tr><td>pp_check()</td><td>檢查模型產生的資料像不像真資料</td></tr>
+    </tbody>
+  </table>
+  <div class="callout orange">初學者不需要先學「公式」，但一定要學會「這行程式在對研究問題做什麼」。</div>
 </section>
 
-<section id="faq">
-  <h2>12. 統計小白 FAQ</h2>
-  <details><summary>Q1：樣本小就一定要 Bayesian 嗎？</summary><p>不是。Bayesian 不會憑空製造資訊。合理 prior 能 regularize，但資料非常少時 posterior 仍會很不確定。</p></details>
-  <details><summary>Q2：Bayesian 就不用 sample size 嗎？</summary><p>不是。仍需做設計與 precision / assurance / simulation 思考。差別在於規劃方式可以跟 posterior decision criteria 結合。</p></details>
-  <details><summary>Q3：Prior 一定要來自上一份研究嗎？</summary><p>不一定。初學者可以從 weakly informative prior 開始，再做 prior predictive check 與 sensitivity analysis。</p></details>
-  <details><summary>Q4：Likert 1–5 可以直接做 Bayesian 嗎？</summary><p>可以。單題 Likert 通常可考慮 ordinal model；多題形成構面後，若有合理量表建構，研究者也常使用構面分數做 regression。建模選擇應配合理論與資料尺度。</p></details>
-  <details><summary>Q5：Bayesian 有沒有 p-value？</summary><p>通常不需要把分析中心放在 p-value。你會看 posterior interval、方向機率、預測機率與臨床意義門檻。</p></details>
-  <details><summary>Q6：我要學 Stan 語法嗎？</summary><p>不一定。多數救護臨床與問卷研究，用 brms 已經可以走很遠。等你需要自訂 likelihood 或特殊模型時，再往原生 Stan 走。</p></details>
-</section>
-
-<section id="refs">
-  <h2>參考資源與官方文件</h2>
-  <ul>
-    <li><a href="https://paulbuerkner.com/brms/" target="_blank" rel="noopener">brms 官方網站</a> — Bayesian generalized / multilevel models via Stan。</li>
-    <li><a href="https://mc-stan.org/rstanarm/" target="_blank" rel="noopener">rstanarm</a> — 熟悉 glm / glmer 使用者的 Bayesian 路線。</li>
-    <li><a href="https://mc-stan.org/bayesplot/" target="_blank" rel="noopener">bayesplot</a> — MCMC 與 posterior predictive visualization。</li>
-    <li><a href="https://mc-stan.org/posterior/" target="_blank" rel="noopener">posterior</a> — posterior draws 與診斷。</li>
-    <li><a href="https://www.icmje.org/recommendations/browse/publishing-and-editorial-issues/overlapping-publications.html" target="_blank" rel="noopener">ICMJE — Overlapping Publications</a>。</li>
-  </ul>
-  <p class="muted">教學定位：研究方法入門，不取代統計顧問、研究倫理審查或目標期刊的個別投稿規範。</p>
+<section id="check">
+  <h2>14. 小白自我檢查：做到這些才算真的入門</h2>
+  <details><summary>我能不能用自己的話解釋 Prior？</summary><p>不是背「先驗分布」四個字，而是能說：「看這次資料前，我對效果合理範圍的想法。」</p></details>
+  <details><summary>我知道 Posterior 不是一個單一答案嗎？</summary><p>要知道它是一整個可能效果的分布，包含不確定性。</p></details>
+  <details><summary>我知道 credible interval 跟 confidence interval 不能直接當同一件事嗎？</summary><p>如果知道，就已經跨過很多初學者常見誤區。</p></details>
+  <details><summary>我知道 MCMC 不是我要手算的東西嗎？</summary><p>對。你要會檢查 chains、R-hat、ESS、PPC，而不是推導演算法。</p></details>
+  <details><summary>我知道前後測真正要看的是「改變幅度差異」嗎？</summary><p>如果有介入組與對照組，通常重點不是各組自己有沒有顯著，而是兩組變化是否不同。</p></details>
+  <details><summary>我知道模型要跟 outcome 類型與資料層級一起選嗎？</summary><p>如果知道 continuous / binary / ordinal / repeated / clustered 的差異，就已經開始能自己選模型。</p></details>
 </section>
 </main>
 </div>
 
 <div class="footer">
-  <strong>Bayesian EMS Research｜統計小白版</strong><br>
-  建議學習順序：Prior 直覺 → 一個簡單 regression → posterior diagnostics → predictive probability → multilevel model → 再碰 SEM / causal inference。
+  Bayesian EMS Academy v2｜零公式入門版<br>
+  原則：先懂名詞 → 再懂模型 → 再跑 R → 最後才碰更進階的數學推導。
 </div>
 
 <script>
-const pb = document.getElementById('progressBar');
-window.addEventListener('scroll', () => {
-  const h = document.documentElement.scrollHeight - window.innerHeight;
-  pb.style.width = (h ? (window.scrollY / h)*100 : 0) + '%';
-});
+const bar=document.getElementById('bar');
+window.addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h?window.scrollY/h*100:0)+'%'});
 
-document.querySelectorAll('.copy').forEach(btn=>{
-  btn.addEventListener('click', async ()=>{
-    const txt = btn.nextElementSibling.innerText;
-    try { await navigator.clipboard.writeText(txt); btn.textContent='已複製'; setTimeout(()=>btn.textContent='複製',1200); }
-    catch(e){ btn.textContent='請手動複製'; }
+const input=document.getElementById('termSearch');
+input.addEventListener('input',()=>{
+  const q=input.value.trim().toLowerCase();
+  document.querySelectorAll('#terms .term').forEach(el=>{
+    const txt=(el.dataset.key+' '+el.innerText).toLowerCase();
+    el.style.display=txt.includes(q)?'block':'none';
   });
 });
 
-function logGamma(z){
-  const c=[676.5203681218851,-1259.1392167224028,771.32342877765313,-176.6150291621406,12.507343278686905,-0.13857109526572012,9.984369578019571e-6,1.5056327351493116e-7];
-  if(z<0.5) return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-logGamma(1-z);
-  z-=1; let x=0.9999999999998099;
-  for(let i=0;i<c.length;i++) x += c[i]/(z+i+1);
-  let t=z+c.length-0.5;
-  return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x);
-}
-function betaPdf(x,a,b){
-  if(x<=0 || x>=1) return 0;
-  return Math.exp((a-1)*Math.log(x)+(b-1)*Math.log(1-x)-(logGamma(a)+logGamma(b)-logGamma(a+b)));
-}
-function updateBayes(){
-  const m=+document.getElementById('priorMean').value/100;
-  const s=+document.getElementById('priorStrength').value;
-  const n=+document.getElementById('nObs').value;
-  const kEl=document.getElementById('kObs');
-  kEl.max=n;
-  if(+kEl.value>n) kEl.value=n;
-  const k=+kEl.value;
-  const a0=m*s, b0=(1-m)*s, a1=a0+k, b1=b0+n-k;
-  document.getElementById('pmv').textContent=Math.round(m*100)+'%';
-  document.getElementById('psv').textContent=s;
-  document.getElementById('nv').textContent=n;
-  document.getElementById('kv').textContent=k;
-  document.getElementById('priorOut').textContent=(100*m).toFixed(1)+'%';
-  document.getElementById('dataOut').textContent=(100*k/n).toFixed(1)+'%';
-  document.getElementById('postOut').textContent=(100*a1/(a1+b1)).toFixed(1)+'%';
-
-  const c=document.getElementById('bayesCanvas'), ctx=c.getContext('2d');
-  const W=c.width,H=c.height,pad=44;
-  ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
-  const xs=[]; let ymax=0;
-  for(let i=1;i<400;i++){let x=i/400; let p=betaPdf(x,a0,b0), q=betaPdf(x,a1,b1); xs.push([x,p,q]); ymax=Math.max(ymax,p,q);}
-  ctx.strokeStyle='#dfe5ef';ctx.lineWidth=1; for(let j=0;j<=4;j++){let y=pad+(H-2*pad)*j/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
-  function draw(idx,color){
-    ctx.strokeStyle=color;ctx.lineWidth=4;ctx.beginPath();
-    xs.forEach((r,i)=>{let X=pad+r[0]*(W-2*pad),Y=H-pad-r[idx]/ymax*(H-2*pad); if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);});ctx.stroke();
-  }
-  draw(1,'#f3a847'); draw(2,'#0f6b78');
-  ctx.fillStyle='#5d6b82';ctx.font='18px sans-serif';ctx.fillText('0%',pad-10,H-12);ctx.fillText('50%',W/2-20,H-12);ctx.fillText('100%',W-pad-30,H-12);
-  ctx.fillStyle='#f3a847';ctx.fillRect(W-250,20,18,5);ctx.fillStyle='#14213d';ctx.fillText('Prior',W-220,27);
-  ctx.fillStyle='#0f6b78';ctx.fillRect(W-150,20,18,5);ctx.fillStyle='#14213d';ctx.fillText('Posterior',W-120,27);
-}
-['priorMean','priorStrength','nObs','kObs'].forEach(id=>document.getElementById(id).addEventListener('input',updateBayes));
-updateBayes();
-
-function chooseModel(){
-  const y=document.getElementById('outcomeType').value, c=document.getElementById('clustered').value;
-  const names={
-    continuous: c==='yes'?'Bayesian linear mixed / multilevel model':'Bayesian linear regression',
-    binary: c==='yes'?'Bayesian logistic mixed / multilevel model':'Bayesian logistic regression',
-    ordinal: c==='yes'?'Bayesian ordinal multilevel model':'Bayesian ordinal regression',
-    count: c==='yes'?'Bayesian Poisson / negative-binomial multilevel model':'Bayesian Poisson / negative-binomial regression',
-    time: c==='yes'?'Bayesian survival model with frailty / group effects':'Bayesian survival model'
-  };
-  const notes={
-    continuous:'例如安全搬運總分、反應時間、知識分數。',
-    binary:'例如 ROSC、插管成功、是否受傷。',
+function choose(){
+  const y=document.getElementById('otype').value;
+  const c=document.getElementById('cluster').value;
+  const base={
+    continuous:'Bayesian linear model',
+    binary:'Bayesian logistic model',
+    ordinal:'Bayesian ordinal model',
+    count:'Bayesian count model（Poisson 或 negative binomial）',
+    time:'Bayesian survival model'
+  }[y];
+  const ex={
+    continuous:'例如安全搬運總分、知識分數。',
+    binary:'例如 ROSC 有／無、插管成功／失敗。',
     ordinal:'例如 TTM 1–5、單題 Likert。',
-    count:'例如錯誤次數、事件數；若 overdispersion 常考慮 negative binomial。',
-    time:'例如 30-day survival、time to event。'
-  };
-  document.getElementById('recommendation').innerHTML='<strong>'+names[y]+'</strong><br>'+notes[y]+(c==='yes'?'<br>你的資料有群集/重複測量：請把受試者、EMT、分隊或機構的層級明確建模。':'');
+    count:'例如某段期間內錯誤事件發生次數。',
+    time:'例如存活時間或事件發生時間。'
+  }[y];
+  document.getElementById('modelResult').innerHTML='<strong>'+base+(c==='yes'?' + multilevel / mixed structure':'')+'</strong><br>'+ex+(c==='yes'?'<br>因為你的資料有同一人重複、EMT、分隊或機構群集，所以不要把每筆資料都當成完全獨立。':'');
 }
+
+document.querySelectorAll('.copy').forEach(btn=>{
+  btn.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(btn.nextElementSibling.innerText);btn.textContent='已複製';setTimeout(()=>btn.textContent='複製',1000)}catch(e){btn.textContent='請手動複製'}
+  })
+});
 </script>
 </body>
 </html>

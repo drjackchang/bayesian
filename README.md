@@ -1,11 +1,12 @@
-# Bayesian EMS Research Tutorial
+# Bayesian EMS Academy v2
 
-A single-page Traditional Chinese tutorial for Bayesian inference in EMS research.
+零公式、名詞導向的救護研究 Bayesian 入門網站。
 
-## Deploy to GitHub Pages
-1. Create a GitHub repository.
-2. Upload `index.html` to the repository root.
-3. Settings → Pages → Deploy from a branch → `main` / root.
-4. Save.
+## GitHub Pages
+1. 建立 GitHub repository
+2. 上傳 index.html 到根目錄
+3. Settings → Pages → Deploy from a branch
+4. 選 main / root
+5. 儲存
 
-No build tools or external JS libraries are required.
+本版不需建置工具，也沒有外部 JavaScript 依賴。
