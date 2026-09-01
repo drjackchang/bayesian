@@ -1,43 +1,38 @@
-# Bayesian EMS Academy — Complete Edition
+# Bayesian HBM × TTM Academy
 
-這是整合並補強後的「零公式 Step-by-Step」版本，設計給 EMT、護理師、臨床教師與 EMS 研究初學者。
+這一版把整個 Bayesian 教學固定在單一案例：
+**EMS 安全搬運行為改變 × HBM × TTM × 前後測 × Bayesian**。
 
-## 本版整合重點
+## 內容
+- HBM 六構面深入解釋
+- TTM stage、操作化與理論批評
+- HBM × TTM 如何整合，以及不能怎麼整合
+- 問卷題目架構
+- 前測／後測／3 個月追蹤設計
+- Prior / Likelihood / Posterior 詳細白話教學
+- p=.09 vs posterior probability 的互動示範
+- Credible interval 與實務重要門檻
+- MCMC / R-hat / ESS / posterior predictive check
+- Bayesian workflow
+- Model A：HBM → TTM ordinal regression
+- Model B：group × time longitudinal mixed model
+- EMT / station multilevel 結構
+- R / brms 完整教學
+- 報告寫作、常見錯誤、總測驗
+- 13 筆核心參考文獻
 
-### 從 Claude 版本吸收
-- 先以臨床情境建立 Bayes 直覺
-- 使用 natural frequencies（1000 人）而非先丟公式
-- 互動式事前機率 / 敏感度 / 特異度計算器
-- 學習進度
-- 情境式測驗
-- RWD / mobile sidebar
-- HTML / CSS / JS 分離
-
-### 從原 Bayesian EMS Step-by-Step 版本保留並加深
-- 臨床 Bayes → Research Bayesian 的橋樑章
-- Prior / Likelihood / Posterior
-- p=.09 與 posterior probability 不是互換的詳細說明
-- 可互動的 research posterior 教學器
-- credible interval 與實務重要門檻
-- MCMC / Chain / R-hat / ESS / PPC
-- Outcome → Bayesian model 選擇器
-- HBM × TTM 安全搬運案例
-- 前後測 / repeated measures
-- EMS multilevel 結構
-- R / brms 程式逐行翻譯
-- Final quiz + searchable glossary
-
-## 重要教學原則
-- 主線不放數學公式。
-- 診斷工具數字型案例均標示為「教學假設」，不冒充特定裝置或量表的正式效能。
-- Research posterior calculator 是常態近似的概念示範，不可取代正式 Bayesian model。
+## 教學資料
+`data/hbm_ttm_safe_handling_demo.csv`
+為 180 位虛構 EMT × 3 時間點 = 540 列的 synthetic dataset，
+不含任何真實個資，也不是實證研究結果。
 
 ## GitHub Pages
-1. 建立 GitHub repository。
-2. 將 `index.html`、`styles.css`、`script.js` 上傳到 repository root。
-3. Settings → Pages。
-4. 選擇 Deploy from a branch。
-5. Branch 選 `main`，folder 選 `/ (root)`。
-6. Save。
+保持資料夾結構上傳：
+- index.html
+- styles.css
+- script.js
+- data/
+- R/
+- REFERENCES.md
 
-不需要 build tool，也沒有外部 JavaScript 依賴。
+Settings → Pages → Deploy from a branch → main / root。

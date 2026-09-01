@@ -1,204 +1,139 @@
-const STEP_IDS = Array.from({length:15}, (_,i)=>`step${i}`);
-const STORAGE_KEY = "bayesian-ems-academy-complete-v1";
-
-function getProgress(){
-  try{return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}}
-  catch(e){return {}}
+const IDS=Array.from({length:20},(_,i)=>`s${i}`);
+const KEY="hbm-ttm-bayes-progress-v1";
+function gp(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+function rp(){
+ const p=gp();let n=0;
+ IDS.forEach(id=>{
+   if(p[id])n++;
+   const a=document.querySelector(`nav a[data-id="${id}"]`);
+   const b=document.querySelector(`.done[data-done="${id}"]`);
+   if(a)a.classList.toggle("done",!!p[id]);
+   if(b){b.classList.toggle("complete",!!p[id]);b.textContent=p[id]?"本步已完成 ✓":"標記本步完成"}
+ });
+ document.getElementById("progressText").textContent=`${n} / ${IDS.length} 完成`;
+ const pct=Math.round(n/IDS.length*100);
+ document.getElementById("progressPct").textContent=pct+"%";
+ document.getElementById("progressFill").style.width=pct+"%";
 }
-function saveProgress(p){localStorage.setItem(STORAGE_KEY, JSON.stringify(p))}
-function renderProgress(){
-  const p=getProgress();
-  let n=0;
-  STEP_IDS.forEach(id=>{
-    const done=!!p[id];
-    if(done)n++;
-    const link=document.querySelector(`#courseNav a[data-step="${id}"]`);
-    if(link)link.classList.toggle("done",done);
-    const btn=document.querySelector(`.complete-btn[data-complete="${id}"]`);
-    if(btn){btn.classList.toggle("done",done);btn.textContent=done?"本步已完成 ✓":"標記本步完成"}
-  });
-  document.getElementById("progressText").textContent=`${n} / ${STEP_IDS.length} 完成`;
-  const pct=Math.round(n/STEP_IDS.length*100);
-  document.getElementById("progressPct").textContent=pct+"%";
-  document.getElementById("progressFill").style.width=pct+"%";
+document.querySelectorAll(".done").forEach(b=>b.onclick=()=>{
+ const p=gp(),id=b.dataset.done;p[id]=!p[id];
+ localStorage.setItem(KEY,JSON.stringify(p));rp();
+});
+document.getElementById("reset").onclick=()=>{
+ if(confirm("清除所有學習進度？")){localStorage.removeItem(KEY);rp()}
+};
+rp();
+
+const side=document.getElementById("sidebar");
+document.getElementById("mobileBtn").onclick=()=>side.classList.toggle("open");
+document.querySelectorAll("nav a").forEach(a=>a.onclick=()=>side.classList.remove("open"));
+function spy(){
+ let c=IDS[0],y=scrollY+130;
+ IDS.forEach(id=>{const s=document.getElementById(id);if(s.offsetTop<=y)c=id});
+ document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("active",a.dataset.id===c));
 }
-document.querySelectorAll(".complete-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const p=getProgress(), id=btn.dataset.complete;
-    p[id]=!p[id];saveProgress(p);renderProgress();
-  });
-});
-document.getElementById("resetProgress").addEventListener("click",()=>{
-  if(confirm("確定清除學習進度？")){localStorage.removeItem(STORAGE_KEY);renderProgress()}
-});
-renderProgress();
+addEventListener("scroll",spy,{passive:true});spy();
 
-// Mobile menu
-const sidebar=document.getElementById("sidebar");
-const mobileBtn=document.getElementById("mobileMenuBtn");
-mobileBtn.addEventListener("click",()=>{
-  const open=sidebar.classList.toggle("open");
-  mobileBtn.setAttribute("aria-expanded",String(open));
-});
-document.querySelectorAll("#courseNav a").forEach(a=>a.addEventListener("click",()=>sidebar.classList.remove("open")));
-
-// Scroll spy
-const navLinks=[...document.querySelectorAll("#courseNav a")];
-const sections=STEP_IDS.map(id=>document.getElementById(id));
-function updateSpy(){
-  const y=window.scrollY+130;
-  let current=STEP_IDS[0];
-  sections.forEach(s=>{if(s.offsetTop<=y)current=s.id});
-  navLinks.forEach(a=>a.classList.toggle("active",a.dataset.step===current));
-}
-window.addEventListener("scroll",updateSpy,{passive:true});updateSpy();
-
-// Micro quiz
-document.querySelectorAll(".micro-quiz").forEach(box=>{
-  box.querySelectorAll("button").forEach(btn=>btn.addEventListener("click",()=>{
-    const ok=btn.dataset.choice===box.dataset.answer;
-    const f=box.querySelector(".quiz-feedback");
-    f.classList.add("show");
-    f.innerHTML=ok?"<b>答對。</b> 新資訊出現後應該更新原本判斷，這就是 Bayesian 的核心動作。":"<b>再想一次。</b> 如果新資訊永遠不改變判斷，就沒有做到 Bayesian updating。";
-  }));
+document.querySelectorAll('input[name="stageDemo"]').forEach(x=>x.onchange=()=>{
+ const names=["","前意圖期","意圖期","準備期","行動期","維持期"];
+ document.getElementById("stageResult").innerHTML=
+ `你選的是 <b>Stage ${x.value}：${names[x.value]}</b>。在資料中它應視為「有順序的類別」，不是單純把 ${x.value} 當成等距連續分數。`;
 });
 
-// Diagnostic Bayes natural-frequency calculator
-const DX_PRESETS={low:{prior:1,sens:80,spec:97},mid:{prior:30,sens:80,spec:97},custom:{prior:10,sens:85,spec:85}};
-const dxPrior=document.getElementById("dxPrior"),dxSens=document.getElementById("dxSens"),dxSpec=document.getElementById("dxSpec");
-function runDx(){
-  const prior=+dxPrior.value/100,sens=+dxSens.value/100,spec=+dxSpec.value/100;
-  const tp=prior*sens, fp=(1-prior)*(1-spec), posterior=tp/(tp+fp);
-  document.getElementById("dxPriorOut").textContent=Math.round(prior*100)+"%";
-  document.getElementById("dxSensOut").textContent=Math.round(sens*100)+"%";
-  document.getElementById("dxSpecOut").textContent=Math.round(spec*100)+"%";
-  document.getElementById("dxPosterior").textContent=(posterior*100).toFixed(1)+"%";
-  document.getElementById("dxTP").textContent=Math.round(1000*prior*sens);
-  document.getElementById("dxFP").textContent=Math.round(1000*(1-prior)*(1-spec));
-  document.getElementById("dxTN").textContent=Math.round(1000*(1-prior)*spec);
-  document.getElementById("dxFN").textContent=Math.round(1000*prior*(1-sens));
+const pr=document.getElementById("priorSlider"), prr=document.getElementById("priorLabResult");
+function priorLab(){
+ const v=+pr.value;
+ const t=v===1
+ ?["較保守","極端效果被壓得較多；若資料不強，Posterior 通常會更靠近 0。"]
+ :v===2
+ ?["溫和弱資訊","正負方向都允許，但不先相信極端巨大效果；適合作為初學概念起點。"]
+ :["較寬鬆","允許較大的效果，Posterior 會更受資料本身主導；仍要做 prior predictive check。"];
+ prr.innerHTML=`<b>${t[0]}</b><p>${t[1]}</p>`;
 }
-[dxPrior,dxSens,dxSpec].forEach(el=>el.addEventListener("input",()=>{
-  document.querySelectorAll("[data-dx-preset]").forEach(b=>b.classList.toggle("active",b.dataset.dxPreset==="custom"));runDx();
-}));
-document.querySelectorAll("[data-dx-preset]").forEach(btn=>btn.addEventListener("click",()=>{
-  const p=DX_PRESETS[btn.dataset.dxPreset];dxPrior.value=p.prior;dxSens.value=p.sens;dxSpec.value=p.spec;
-  document.querySelectorAll("[data-dx-preset]").forEach(b=>b.classList.toggle("active",b===btn));runDx();
-}));
-runDx();
+pr.oninput=priorLab;priorLab();
 
-// Research normal-approximation teaching calculator
 function erf(x){
-  const sign=x<0?-1:1; x=Math.abs(x);
-  const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;
-  const t=1/(1+p*x);
-  const y=1-(((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t)*Math.exp(-x*x);
-  return sign*y;
+ const s=x<0?-1:1;x=Math.abs(x);
+ const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911,t=1/(1+p*x);
+ return s*(1-(((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t)*Math.exp(-x*x));
 }
 function cdf(z){return .5*(1+erf(z/Math.sqrt(2)))}
-function fmtP(p){
-  if(p<.001)return "<.001";
-  const s=p.toFixed(3);return s.startsWith("0")?s.slice(1):s;
+function fp(p){if(p<.001)return "<.001";let s=p.toFixed(3);return s.startsWith("0")?s.slice(1):s}
+const E=document.getElementById("effect"),SE=document.getElementById("se"),PSD=document.getElementById("psd"),TH=document.getElementById("thr");
+function bayesLab(){
+ const y=+E.value,se=+SE.value,psd=+PSD.value,thr=+TH.value;
+ const p=2*(1-cdf(Math.abs(y/se)));
+ const postVar=1/(1/(psd*psd)+1/(se*se));
+ const postSd=Math.sqrt(postVar), postMean=(y/(se*se))*postVar;
+ const pos=1-cdf((0-postMean)/postSd), meaningful=1-cdf((thr-postMean)/postSd);
+ document.getElementById("effOut").textContent=(y>=0?"+":"")+y.toFixed(2);
+ document.getElementById("seOut").textContent=se.toFixed(2);
+ document.getElementById("psdOut").textContent=psd.toFixed(2);
+ document.getElementById("thrOut").textContent="+"+thr.toFixed(2);
+ document.getElementById("pOut").textContent=fp(p);
+ document.getElementById("posOut").textContent=(pos*100).toFixed(1)+"%";
+ document.getElementById("meaningOut").textContent=(meaningful*100).toFixed(1)+"%";
+ document.getElementById("labInterpret").innerHTML=
+ `在這個<b>簡化教學模型</b>裡，傳統雙尾 p 約 <b>${fp(p)}</b>；指定 centered-at-zero、寬度 ${psd.toFixed(2)} 的 Prior 後，Posterior 中效果大於 0 的比例約 <b>${(pos*100).toFixed(1)}%</b>，超過 +${thr.toFixed(2)} 的比例約 <b>${(meaningful*100).toFixed(1)}%</b>。拖動 Prior 寬度，你會看到 posterior probability 會改變，因此它不是 1−p。`;
 }
-const rEffect=document.getElementById("rEffect"),rSe=document.getElementById("rSe"),rPriorSd=document.getElementById("rPriorSd"),rThreshold=document.getElementById("rThreshold");
-function runResearchCalc(){
-  const y=+rEffect.value,se=+rSe.value,psd=+rPriorSd.value,thr=+rThreshold.value;
-  const z=y/se;
-  const p=2*(1-cdf(Math.abs(z)));
-  const postVar=1/(1/(psd*psd)+1/(se*se));
-  const postSd=Math.sqrt(postVar);
-  const postMean=(y/(se*se))*postVar; // prior mean 0
-  const probPos=1-cdf((0-postMean)/postSd);
-  const probThr=1-cdf((thr-postMean)/postSd);
-  const neg=1-probPos, small=Math.max(0,probPos-probThr), meaningful=probThr;
+[E,SE,PSD,TH].forEach(x=>x.oninput=bayesLab);bayesLab();
 
-  document.getElementById("rEffectOut").textContent=(y>=0?"+":"")+y.toFixed(2);
-  document.getElementById("rSeOut").textContent=se.toFixed(2);
-  document.getElementById("rPriorSdOut").textContent=psd.toFixed(2);
-  document.getElementById("rThresholdOut").textContent="+"+thr.toFixed(2);
-  document.getElementById("rPvalue").textContent=fmtP(p);
-  document.getElementById("rProbPositive").textContent=(probPos*100).toFixed(1)+"%";
-  document.getElementById("rProbMeaningful").textContent=(probThr*100).toFixed(1)+"%";
-  document.getElementById("posteriorNeg").style.width=(neg*100)+"%";
-  document.getElementById("posteriorSmall").style.width=(small*100)+"%";
-  document.getElementById("posteriorMeaningful").style.width=(meaningful*100)+"%";
-  document.getElementById("rInterpretation").innerHTML=
-    `同一批資料的傳統雙尾 p-value 約為 <b>${fmtP(p)}</b>。在「Prior 以 0 為中心、寬度 ${psd.toFixed(2)}」的簡化示範下，更新後效果大於 0 的機率約 <b>${(probPos*100).toFixed(1)}%</b>，而超過你設定的 +${thr.toFixed(2)} 實務門檻的機率約 <b>${(probThr*100).toFixed(1)}%</b>。這些機率不是由 1−p 換算，而是 Prior 與資料重新更新後得到。`;
-}
-[rEffect,rSe,rPriorSd,rThreshold].forEach(el=>el.addEventListener("input",runResearchCalc));runResearchCalc();
-
-// Model chooser
-const MODEL_MAP={
-  continuous:{plain:"Bayesian linear regression",multi:"Bayesian linear multilevel / mixed model",example:"安全搬運總分、知識分數"},
-  binary:{plain:"Bayesian logistic regression",multi:"Bayesian logistic multilevel model",example:"ROSC、插管成功 / 失敗"},
-  ordinal:{plain:"Bayesian ordinal regression",multi:"Bayesian ordinal multilevel model",example:"TTM stage 1–5、單題 Likert"},
-  count:{plain:"Bayesian Poisson / negative-binomial regression",multi:"Bayesian count multilevel model",example:"錯誤事件次數、出勤事件數"},
-  time:{plain:"Bayesian survival model",multi:"Bayesian survival model + group / frailty structure",example:"time-to-event、存活時間"}
-};
-document.getElementById("chooseModelBtn").addEventListener("click",()=>{
-  const y=document.getElementById("modelOutcome").value;
-  const clustered=document.getElementById("modelCluster").value==="yes";
-  const m=MODEL_MAP[y];
-  document.getElementById("modelRecommendation").innerHTML=`<b>${clustered?m.multi:m.plain}</b><br>例：${m.example}。${clustered?"因為資料有重複測量或群集，模型要明確處理這個層級。":""}`;
+document.querySelectorAll(".copy").forEach(b=>b.onclick=async()=>{
+ try{await navigator.clipboard.writeText(b.nextElementSibling.innerText);b.textContent="已複製";setTimeout(()=>b.textContent="複製",900)}
+ catch(e){b.textContent="請手動複製"}
 });
-document.getElementById("chooseModelBtn").click();
 
-// Copy buttons
-document.querySelectorAll(".copy-btn").forEach(btn=>btn.addEventListener("click",async()=>{
-  try{await navigator.clipboard.writeText(btn.nextElementSibling.innerText);btn.textContent="已複製";setTimeout(()=>btn.textContent="複製",1000)}
-  catch(e){btn.textContent="請手動複製"}
-}));
-
-// Glossary
-const GLOSSARY=[
-  ["Prior","先驗","看這次資料以前，對未知效果合理範圍的設定。不是研究者先決定答案。"],
-  ["Likelihood","似然 / 資料證據","資料在不同可能參數值下有多相容；小白先把它理解成「這次資料怎麼把答案往某些地方推」。"],
-  ["Posterior","後驗","Prior 和這次資料更新完之後，對未知效果的完整機率分布。"],
-  ["Posterior probability","後驗機率","在目前模型與資料下，某件你關心的條件成立的機率，例如效果 > 0。"],
-  ["Credible interval","可信區間","用來呈現 posterior 不確定範圍；不要只把它當作「跨不跨 0」的門檻。"],
-  ["Weakly informative prior","弱資訊先驗","不強迫答案方向，但排除太離譜的極端效果。"],
-  ["Sensitivity analysis","敏感度分析","換幾個合理設定再分析，看結論會不會被某個 Prior 綁死。"],
-  ["MCMC","馬可夫鏈蒙地卡羅","電腦反覆探索可能參數值，近似 posterior。初學者重點是會檢查，不必推導。"],
-  ["Chain","抽樣鏈","MCMC 的一條探索路線。多條 chain 是從不同起點確認探索是否一致。"],
-  ["R-hat","收斂診斷","看多條 chains 是否已經找到相似的 posterior 區域。"],
-  ["ESS","有效抽樣數","MCMC draws 中真正提供多少有效資訊，不是研究受試者人數。"],
-  ["Posterior predictive check","後驗預測檢查","讓模型模擬資料，看它能不能重現真實資料的大致樣貌。"],
-  ["Multilevel model","多層次模型","用來處理病人巢狀於 EMT、分隊、機構，或同一個人重複測量的結構。"],
-  ["Random effect","隨機效果","讓不同人、分隊或機構有自己的起點或軌跡；不是『亂數效果』。"],
-  ["Ordinal model","有序模型","Outcome 有順序但階段距離未必相等，例如 TTM 1–5。"],
-  ["Interaction","交互作用","一個因素的效果是否隨另一因素而變。前後測常關心 group × time。"],
-  ["Clinically meaningful threshold","臨床 / 實務重要門檻","事先定義效果要大到多少才值得在實務上在意。"]
+const terms=[
+["HBM","Health Belief Model","以風險、嚴重性、效益、障礙、自我效能與行動線索等認知來理解健康行為的架構。"],
+["TTM","Transtheoretical Model","以階段描述行為改變位置。常見為前意圖、意圖、準備、行動、維持；理論本身有重要爭議。"],
+["Prior","先驗","看這次資料前，對模型參數合理範圍的機率描述。"],
+["Likelihood","似然","模型描述不同參數值與現在資料的相容程度；初學可理解成『資料如何推動不同答案』。"],
+["Posterior","後驗","Prior 與資料更新後，對未知參數的完整機率分布。"],
+["Posterior probability","後驗機率","例如 P(effect > 0 | data)，是在目前模型與資料下某條件成立的機率。"],
+["Credible interval","可信區間","用 posterior 描述參數不確定範圍，不應只拿來當新的顯著性門檻。"],
+["Ordinal outcome","有序結果","有順序但級距不必相等，例如 TTM stage 1–5。"],
+["MCMC","馬可夫鏈蒙地卡羅","電腦用抽樣方式探索 posterior；初學重點是檢查探索是否穩定。"],
+["R-hat","收斂診斷","檢查多條 MCMC chains 是否探索到相似分布。"],
+["ESS","有效抽樣數","MCMC draws 中真正有效的資訊量；不是研究受試者人數。"],
+["PPC","Posterior Predictive Check","用模型生成模擬資料，檢查模型能否重現真實資料樣貌。"],
+["Multilevel","多層次模型","處理同一人重複測量、EMT 屬於分隊等相依資料結構。"],
+["Partial pooling","部分匯聚","讓小群組估計同時參考群組自身與整體資料，減少極端不穩定估計。"],
+["Interaction","交互作用","一個效果是否隨另一因素改變；前後測常以 group × time 直接估兩組變化差異。"],
+["Sensitivity analysis","敏感度分析","用不同合理 Prior 或模型設定重跑，觀察結論是否穩健。"],
+["Prior predictive check","先驗預測檢查","只從 Prior 與模型生成可能資料，檢查研究前的模型世界是否荒謬。"]
 ];
-const dialog=document.getElementById("glossaryDialog"), list=document.getElementById("glossaryList"), search=document.getElementById("glossarySearch");
-function renderGlossary(q=""){
-  q=q.toLowerCase().trim();
-  list.innerHTML=GLOSSARY.filter(x=>x.join(" ").toLowerCase().includes(q)).map(x=>`<div class="glossary-item"><b>${x[0]}</b><span>${x[1]}</span><p>${x[2]}</p></div>`).join("");
+const dlg=document.getElementById("glossary"),gl=document.getElementById("glossaryList"),gs=document.getElementById("glossarySearch");
+function rg(q=""){
+ q=q.toLowerCase();
+ gl.innerHTML=terms.filter(t=>t.join(" ").toLowerCase().includes(q))
+ .map(t=>`<div class="gitem"><b>${t[0]}</b><small>${t[1]}</small><p>${t[2]}</p></div>`).join("");
 }
-document.getElementById("openGlossary").addEventListener("click",()=>{renderGlossary();dialog.showModal();search.focus()});
-search.addEventListener("input",()=>renderGlossary(search.value));
+document.getElementById("openGlossary").onclick=()=>{rg();dlg.showModal();gs.focus()};
+document.getElementById("closeGlossary").onclick=()=>dlg.close();
+gs.oninput=()=>rg(gs.value);
 
-// Final quiz
-const FINAL_QUIZ=[
-  {q:"Bayesian 最核心的動作是什麼？",o:["找到 p<.05","新資訊出現後更新對未知事情的判斷","把所有變項都放進 regression","使用四條 chain"],a:1,e:"核心是 updating；其他都是特定分析或運算手段。"},
-  {q:"如果傳統分析 p=.09，下列哪個說法正確？",o:["有效機率就是91%","沒有效果的機率是9%","不能只靠 p=.09 推出 posterior probability","Bayesian 一定也會得到不顯著"],a:2,e:"p-value 和 posterior probability 回答不同問題，不能用 1−p 換算。"},
-  {q:"TTM 的 1–5 階段最常優先考慮哪種 Outcome 類型？",o:["二元","有序類別","存活時間","計數"],a:1,e:"TTM 有明確順序，但相鄰階段不一定等距。"},
-  {q:"介入組與對照組的前後測，最重要通常看什麼？",o:["介入組自己 p<.05 就好","對照組 p>.05 就好","兩組隨時間的改變幅度是否不同","只看後測平均"],a:2,e:"核心常是 group × time / change contrast，而不是各組分開做顯著性判斷。"},
-  {q:"R-hat 是用來判斷什麼？",o:["效果有多大","Prior 好不好","不同 MCMC chains 是否收斂到相似區域","樣本數夠不夠"],a:2,e:"R-hat 是 MCMC 收斂診斷，不是效果大小或研究樣本數。"},
-  {q:"Posterior predictive check 的白話目的？",o:["把 p-value 轉成機率","看模型模擬的資料像不像真實資料","決定研究倫理","自動選 Prior"],a:1,e:"PPC 是模型合理性檢查：模型能否生成類似你實際看到的資料。"}
+const q=[
+["HBM×TTM 在本課程中最正確的定位？",["一個官方固定的單一理論","HBM 作為解釋因素、TTM 作為 stage outcome 的研究整合","兩個總分直接相乘","只用來算 Cronbach α"],1,"這是研究者清楚定義角色的理論整合，不是一個官方固定的乘法模型。"],
+["為什麼 TTM stage 不直接當普通連續 1–5 分？",["因為不能放進 R","因為有順序但相鄰階段不必等距","因為樣本一定太小","因為 Bayesian 不接受數字"],1,"TTM stage 的關鍵是 ordinal：有順序，不保證等距。"],
+["p=.09 時，下列哪句正確？",["有效機率=91%","無效機率=9%","不能由 p=.09 單獨推出 posterior probability","Bayesian 一定也會說無效"],2,"p-value 與 posterior probability 條件不同，不能用 1−p 換算。"],
+["介入組 pre/post 顯著、對照組不顯著，可以直接說兩組效果不同嗎？",["可以","不可以，應直接比較 group × time / change contrast","只要樣本>30就可以","Bayesian 才可以"],1,"兩個分開的顯著性判斷不是組間效果差異的檢定。"],
+["R-hat 在看什麼？",["效果是否有臨床意義","多條 MCMC chains 是否收斂一致","問卷信度","受試者數是否足夠"],1,"R-hat 是 MCMC convergence diagnostic。"],
+["Bayesian 能不能補救測量錯誤的 HBM 題目？",["可以，只要 prior 好","不行，理論與測量品質仍是前提","只要 posterior>95% 就可以","ordinal model 可以"],1,"Bayesian 不會把錯誤構念測量自動變正確。"],
+["最適合呈現 HBM→TTM ordinal model 給臨床讀者的方式之一？",["只放 log-odds coefficient","畫不同 HBM profile 的各 stage predicted probabilities","只報 p-value","只報 α"],1,"預測機率通常比原始 ordinal log-odds 更有直覺。"],
+["Posterior predictive check 在做什麼？",["把 Prior 改成無資訊","看模型模擬的資料像不像真資料","選出 p<.05 的變項","決定 TTM stage"],1,"PPC 是模型合理性檢查，不是顯著性檢定。"]
 ];
-let ans=0,correct=0;
-const fq=document.getElementById("finalQuiz");
-fq.innerHTML=FINAL_QUIZ.map((x,i)=>`<div class="quiz-q" data-i="${i}"><div class="qtext">${i+1}. ${x.q}</div>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join("")}<div class="quiz-explain">${x.e}</div></div>`).join("");
-fq.querySelectorAll(".quiz-q").forEach(box=>{
-  const i=+box.dataset.i,buttons=[...box.querySelectorAll("button")];
-  buttons.forEach(b=>b.addEventListener("click",()=>{
-    if(buttons[0].disabled)return;
-    const j=+b.dataset.j;
-    buttons.forEach(x=>x.disabled=true);
-    b.classList.add(j===FINAL_QUIZ[i].a?"correct":"wrong");
-    if(j!==FINAL_QUIZ[i].a)buttons[FINAL_QUIZ[i].a].classList.add("correct");
-    box.querySelector(".quiz-explain").classList.add("show");
-    ans++;if(j===FINAL_QUIZ[i].a)correct++;
-    document.getElementById("finalScore").textContent=`已作答：${ans} / ${FINAL_QUIZ.length}　答對：${correct}`;
-  }));
+let answered=0,correct=0;
+const qbox=document.getElementById("quiz");
+qbox.innerHTML=q.map((x,i)=>`<article data-i="${i}"><b>${i+1}. ${x[0]}</b>${x[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join("")}<div class="explain">${x[3]}</div></article>`).join("");
+qbox.querySelectorAll("article").forEach(a=>{
+ const i=+a.dataset.i,bs=[...a.querySelectorAll("button")];
+ bs.forEach(b=>b.onclick=()=>{
+  if(bs[0].disabled)return;
+  const j=+b.dataset.j;bs.forEach(x=>x.disabled=true);
+  b.classList.add(j===q[i][2]?"correct":"wrong");
+  if(j!==q[i][2])bs[q[i][2]].classList.add("correct");
+  a.querySelector(".explain").classList.add("show");
+  answered++;if(j===q[i][2])correct++;
+  document.getElementById("score").textContent=`已作答 ${answered}/${q.length}｜答對 ${correct}`;
+ });
 });
