@@ -36,3 +36,6 @@
 - REFERENCES.md
 
 Settings → Pages → Deploy from a branch → main / root。
+
+## Reference numbering
+參考文獻採正文第一次出現順序編號，同一文獻後續沿用原編號。
